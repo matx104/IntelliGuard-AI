@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliGuard-AI Data Flow Architecture</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #3b82f6, #06b6d4, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        
+        .flow-diagram {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .flow-stage {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+        }
+        
+        .stage-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stage-title .icon {
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+        
+        .flow-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .component {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .component:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .component-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .component-type {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .component-metrics {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 2em;
+            color: #3b82f6;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.6; transform: scale(1); }
+        }
+        
+        .data-sources { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); }
+        .ingestion { background: linear-gradient(135deg, #d97706 0%, #92400e 100%); }
+        .processing { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+        .analytics { background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); }
+        .response { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+        .storage { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .metric-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #22d3ee;
+        }
+        
+        .metric-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .tech-stack {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .tech-category {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .tech-category h3 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .tech-list li {
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .data-pipeline {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+        }
+        
+        .pipeline-step {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .pipeline-step::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2em;
+            color: #3b82f6;
+        }
+        
+        .pipeline-step:last-child::after {
+            display: none;
+        }
+        
+        .step-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .step-desc {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 IntelliGuard-AI Data Flow Architecture</h1>
+            <div class="subtitle">Real-time Security Event Processing Pipeline</div>
+        </div>
+        
+        <!-- Data Processing Pipeline -->
+        <div class="data-pipeline">
+            <div class="pipeline-step">
+                <span class="step-icon">📥</span>
+                <div class="step-title">Ingestion</div>
+                <div class="step-desc">Multi-source data collection</div>
+            </div>
+            <div class="pipeline-step">
+                <span class="step-icon">🔄</span>
+                <div class="step-title">Normalization</div>
+                <div class="step-desc">Data format standardization</div>
+            </div>
+            <div class="pipeline-step">
+                <span class="step-icon">🧠</span>
+                <div class="step-title">Analysis</div>
+                <div class="step-desc">ML-powered threat detection</div>
+            </div>
+            <div class="pipeline-step">
+                <span class="step-icon">⚠️</span>
+                <div class="step-title">Alerting</div>
+                <div class="step-desc">Intelligent alert generation</div>
+            </div>
+            <div class="pipeline-step">
+                <span class="step-icon">🤖</span>
+                <div class="step-title">Response</div>
+                <div class="step-desc">Automated remediation</div>
+            </div>
+        </div>
+        
+        <div class="flow-diagram">
+            <!-- Stage 1: Data Sources -->
+            <div class="flow-stage data-sources">
+                <div class="stage-title">
+                    <span class="icon">🌐</span>
+                    Data Sources Layer
+                </div>
+                <div class="flow-components">
+                    <div class="component">
+                        <div class="component-name">Network Devices</div>
+                        <div class="component-type">Firewalls, Switches, Routers</div>
+                        <div class="component-metrics">~50K events/min</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Endpoints</div>
+                        <div class="component-type">Windows, Linux, MacOS</div>
+                        <div class="component-metrics">~200K events/min</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Cloud Services</div>
+                        <div class="component-type">AWS, Azure, GCP</div>
+                        <div class="component-metrics">~30K events/min</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Applications</div>
+                        <div class="component-type">Web Apps, Databases</div>
+                        <div class="component-metrics">~80K events/min</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Security Tools</div>
+                        <div class="component-type">AV, Scanners, Identity</div>
+                        <div class="component-metrics">~20K events/min</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">⬇️</div>
+            
+            <!-- Stage 2: Data Ingestion -->
+            <div class="flow-stage ingestion">
+                <div class="stage-title">
+                    <span class="icon">📥</span>
+                    Data Ingestion Layer
+                </div>
+                <div class="flow-components">
+                    <div class="component">
+                        <div class="component-name">Syslog Collectors</div>
+                        <div class="component-type">RFC 3164/5424</div>
+                        <div class="component-metrics">High throughput</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Beats Framework</div>
+                        <div class="component-type">Filebeat, Winlogbeat</div>
+                        <div class="component-metrics">Agent-based</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">API Gateways</div>
+                        <div class="component-type">REST/GraphQL</div>
+                        <div class="component-metrics">Cloud integration</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Message Brokers</div>
+                        <div class="component-type">Apache Kafka</div>
+                        <div class="component-metrics">500K msg/sec</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">⬇️</div>
+            
+            <!-- Stage 3: Stream Processing -->
+            <div class="flow-stage processing">
+                <div class="stage-title">
+                    <span class="icon">⚙️</span>
+                    Stream Processing Layer
+                </div>
+                <div class="flow-components">
+                    <div class="component">
+                        <div class="component-name">Data Normalization</div>
+                        <div class="component-type">CEF Conversion</div>
+                        <div class="component-metrics">&lt;100ms latency</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Data Enrichment</div>
+                        <div class="component-type">GeoIP, Intel, Assets</div>
+                        <div class="component-metrics">&lt;200ms latency</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Event Correlation</div>
+                        <div class="component-type">Cross-source Analysis</div>
+                        <div class="component-metrics">&lt;500ms window</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Stream Analytics</div>
+                        <div class="component-type">Kafka Streams</div>
+                        <div class="component-metrics">Real-time processing</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">⬇️</div>
+            
+            <!-- Stage 4: AI/ML Analytics -->
+            <div class="flow-stage analytics">
+                <div class="stage-title">
+                    <span class="icon">🧠</span>
+                    AI/ML Analytics Engine
+                </div>
+                <div class="flow-components">
+                    <div class="component">
+                        <div class="component-name">Anomaly Detection</div>
+                        <div class="component-type">Isolation Forest</div>
+                        <div class="component-metrics">95% accuracy</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Behavioral Analysis</div>
+                        <div class="component-type">LSTM Networks</div>
+                        <div class="component-metrics">UEBA scoring</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Threat Classification</div>
+                        <div class="component-type">Gradient Boosting</div>
+                        <div class="component-metrics">92% precision</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Risk Scoring</div>
+                        <div class="component-type">Ensemble Models</div>
+                        <div class="component-metrics">Dynamic weighting</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">⬇️</div>
+            
+            <!-- Stage 5: Automated Response -->
+            <div class="flow-stage response">
+                <div class="stage-title">
+                    <span class="icon">🤖</span>
+                    Automated Response Layer
+                </div>
+                <div class="flow-components">
+                    <div class="component">
+                        <div class="component-name">Alert Generation</div>
+                        <div class="component-type">Intelligent Filtering</div>
+                        <div class="component-metrics">85% reduction</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">SOAR Orchestration</div>
+                        <div class="component-type">Shuffle Workflows</div>
+                        <div class="component-metrics">Automated playbooks</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Incident Creation</div>
+                        <div class="component-type">TheHive Cases</div>
+                        <div class="component-metrics">Auto-assignment</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Response Actions</div>
+                        <div class="component-type">Containment/Remediation</div>
+                        <div class="component-metrics">&lt;60s execution</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">⬇️</div>
+            
+            <!-- Stage 6: Data Storage -->
+            <div class="flow-stage storage">
+                <div class="stage-title">
+                    <span class="icon">💾</span>
+                    Data Storage & Analytics
+                </div>
+                <div class="flow-components">
+                    <div class="component">
+                        <div class="component-name">Hot Storage</div>
+                        <div class="component-type">Elasticsearch</div>
+                        <div class="component-metrics">30 days, &lt;1s query</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Warm Storage</div>
+                        <div class="component-type">ES Frozen Tier</div>
+                        <div class="component-metrics">365 days, &lt;10s query</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Cold Storage</div>
+                        <div class="component-type">Object Store</div>
+                        <div class="component-metrics">7 years, &lt;60s query</div>
+                    </div>
+                    <div class="component">
+                        <div class="component-name">Analytics DB</div>
+                        <div class="component-type">ClickHouse OLAP</div>
+                        <div class="component-metrics">Historical analysis</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">500K</div>
+                <div class="metric-label">Events/Second Peak</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">98%</div>
+                <div class="metric-label">Processing Uptime</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">&lt;100ms</div>
+                <div class="metric-label">P99 Latency</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">15%</div>
+                <div class="metric-label">False Positive Rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">85%</div>
+                <div class="metric-label">Automated Response</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">10PB</div>
+                <div class="metric-label">Storage Capacity</div>
+            </div>
+        </div>
+        
+        <!-- Technology Stack -->
+        <div class="tech-stack">
+            <div class="stage-title">
+                <span class="icon">🛠️</span>
+                Core Technology Stack
+            </div>
+            <div class="tech-grid">
+                <div class="tech-category">
+                    <h3>📥 Data Ingestion</h3>
+                    <ul class="tech-list">
+                        <li>Apache Kafka 3.2+ (Message Streaming)</li>
+                        <li>Elastic Beats (Agent Collection)</li>
+                        <li>Logstash (Data Processing)</li>
+                        <li>Fluent Bit (Log Forwarding)</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h3>⚙️ Stream Processing</h3>
+                    <ul class="tech-list">
+                        <li>Kafka Streams (Real-time Processing)</li>
+                        <li>Apache Spark (Batch Processing)</li>
+                        <li>Apache Beam (Unified Pipeline)</li>
+                        <li>Redis (In-memory Cache)</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h3>🧠 AI/ML Analytics</h3>
+                    <ul class="tech-list">
+                        <li>TensorFlow 2.10+ (Deep Learning)</li>
+                        <li>Scikit-learn (Machine Learning)</li>
+                        <li>MLflow (Model Management)</li>
+                        <li>Kubeflow (ML Workflows)</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h3>💾 Data Storage</h3>
+                    <ul class="tech-list">
+                        <li>Elasticsearch 8.4+ (Search & Analytics)</li>
+                        <li>PostgreSQL 14+ (Metadata)</li>
+                        <li>ClickHouse (OLAP Analytics)</li>
+                        <li>MinIO/S3 (Object Storage)</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h3>🤖 Automation</h3>
+                    <ul class="tech-list">
+                        <li>Shuffle (SOAR Platform)</li>
+                        <li>Cortex (Observable Analysis)</li>
+                        <li>TheHive (Case Management)</li>
+                        <li>Apache Airflow (Workflow Orchestration)</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h3>📊 Visualization</h3>
+                    <ul class="tech-list">
+                        <li>Grafana Enterprise (Dashboards)</li>
+                        <li>Kibana (Log Exploration)</li>
+                        <li>Prometheus (Metrics)</li>
+                        <li>Jaeger (Distributed Tracing)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
