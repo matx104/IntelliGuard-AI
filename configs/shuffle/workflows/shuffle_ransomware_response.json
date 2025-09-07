@@ -1,0 +1,603 @@
+{
+  "name": "IntelliGuard-AI Ransomware Response",
+  "description": "Automated ransomware detection and response workflow for IntelliGuard-AI SOC",
+  "version": "1.0.0",
+  "author": "AL NAFI AI-Ops Diploma Project",
+  "created": "2025-09-07",
+  "workflow": {
+    "id": "intelliguard-ransomware-response",
+    "name": "Ransomware Incident Response",
+    "description": "Comprehensive automated response to ransomware threats",
+    "triggers": [
+      {
+        "id": "wazuh_ransomware_trigger",
+        "name": "Wazuh Ransomware Alert",
+        "type": "webhook",
+        "app": "wazuh",
+        "conditions": [
+          {
+            "field": "rule.id",
+            "operator": "in",
+            "value": ["100051", "100052", "100053", "100602"]
+          },
+          {
+            "field": "rule.level",
+            "operator": ">=",
+            "value": "10"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "action_1",
+        "name": "Parse Wazuh Alert",
+        "app": "shuffle_tools",
+        "function": "parse_json",
+        "parameters": {
+          "input_data": "$exec.wazuh_ransomware_trigger.body",
+          "extract_fields": [
+            "agent.name",
+            "agent.ip",
+            "rule.id",
+            "rule.description",
+            "rule.level",
+            "timestamp",
+            "data.srcuser",
+            "data.srcip"
+          ]
+        },
+        "next": ["action_2", "action_3"]
+      },
+      {
+        "id": "action_2",
+        "name": "Isolate Infected Host",
+        "app": "network_security",
+        "function": "isolate_host",
+        "parameters": {
+          "host_ip": "$exec.action_1.agent.ip",
+          "isolation_type": "complete",
+          "firewall_rules": [
+            {
+              "action": "block",
+              "protocol": "all",
+              "source": "$exec.action_1.agent.ip",
+              "destination": "any"
+            },
+            {
+              "action": "allow",
+              "protocol": "tcp",
+              "source": "$exec.action_1.agent.ip",
+              "destination": "10.0.1.10",
+              "port": "443"
+            }
+          ]
+        },
+        "timeout": 30,
+        "critical": true,
+        "next": ["action_4"]
+      },
+      {
+        "id": "action_3",
+        "name": "Disable User Account",
+        "app": "active_directory",
+        "function": "disable_account",
+        "parameters": {
+          "username": "$exec.action_1.data.srcuser",
+          "domain": "company.local",
+          "backup_groups": true,
+          "notification": true
+        },
+        "condition": {
+          "field": "$exec.action_1.data.srcuser",
+          "operator": "not_empty"
+        },
+        "timeout": 15,
+        "next": ["action_5"]
+      },
+      {
+        "id": "action_4",
+        "name": "Create Security Incident",
+        "app": "thehive",
+        "function": "create_case",
+        "parameters": {
+          "title": "RANSOMWARE: $exec.action_1.rule.description",
+          "description": "Automated ransomware detection on host $exec.action_1.agent.name",
+          "severity": "critical",
+          "tlp": "red",
+          "tags": ["ransomware", "critical", "automated", "intelliguard"],
+          "tasks": [
+            {
+              "title": "Forensic Analysis",
+              "description": "Conduct forensic analysis of infected host",
+              "assignee": "forensics-team@company.com"
+            },
+            {
+              "title": "Communication Plan",
+              "description": "Execute communication plan for ransomware incident",
+              "assignee": "communications@company.com"
+            },
+            {
+              "title": "Recovery Planning",
+              "description": "Develop recovery and restoration plan",
+              "assignee": "recovery-team@company.com"
+            }
+          ],
+          "observables": [
+            {
+              "type": "ip",
+              "value": "$exec.action_1.agent.ip",
+              "tags": ["infected_host", "isolated"]
+            },
+            {
+              "type": "other",
+              "value": "$exec.action_1.agent.name",
+              "tags": ["hostname", "compromised"]
+            }
+          ]
+        },
+        "next": ["action_6", "action_7"]
+      },
+      {
+        "id": "action_5",
+        "name": "Reset User Credentials",
+        "app": "active_directory",
+        "function": "force_password_reset",
+        "parameters": {
+          "username": "$exec.action_1.data.srcuser",
+          "domain": "company.local",
+          "temporary_password": true,
+          "require_change": true,
+          "revoke_sessions": true
+        },
+        "condition": {
+          "field": "$exec.action_3.status",
+          "operator": "equals",
+          "value": "success"
+        },
+        "next": ["action_8"]
+      },
+      {
+        "id": "action_6",
+        "name": "Emergency Notification",
+        "app": "communication",
+        "function": "send_alert",
+        "parameters": {
+          "channels": [
+            {
+              "type": "slack",
+              "channel": "#security-emergency",
+              "message": "🚨 RANSOMWARE DETECTED 🚨\\nHost: $exec.action_1.agent.name\\nIP: $exec.action_1.agent.ip\\nRule: $exec.action_1.rule.description\\nStatus: Host isolated, incident created\\nCase ID: $exec.action_4.case_id"
+            },
+            {
+              "type": "email",
+              "recipients": ["ciso@company.com", "soc-lead@company.com"],
+              "subject": "CRITICAL: Ransomware Detection - $exec.action_1.agent.name",
+              "body": "A ransomware attack has been detected and automatically contained:\\n\\nDetails:\\n- Host: $exec.action_1.agent.name\\n- IP: $exec.action_1.agent.ip\\n- Detection Time: $exec.action_1.timestamp\\n- Rule: $exec.action_1.rule.description\\n\\nActions Taken:\\n- Host isolated from network\\n- Security incident created\\n- User account disabled\\n\\nNext Steps:\\n- Forensic analysis initiated\\n- Recovery team notified\\n- Communication plan activated"
+            },
+            {
+              "type": "sms",
+              "recipients": ["+1234567890"],
+              "message": "RANSOMWARE ALERT: Host $exec.action_1.agent.name isolated. Case $exec.action_4.case_id created. Check Slack for details."
+            }
+          ]
+        },
+        "next": ["action_9"]
+      },
+      {
+        "id": "action_7",
+        "name": "Backup Verification",
+        "app": "backup_system",
+        "function": "verify_backups",
+        "parameters": {
+          "affected_systems": ["$exec.action_1.agent.name"],
+          "backup_types": ["full", "incremental"],
+          "check_integrity": true,
+          "offline_copies": true
+        },
+        "next": ["action_10"]
+      },
+      {
+        "id": "action_8",
+        "name": "Threat Hunting",
+        "app": "wazuh",
+        "function": "execute_search",
+        "parameters": {
+          "query": "agent.ip:$exec.action_1.agent.ip OR data.srcip:$exec.action_1.agent.ip",
+          "timeframe": "last_7_days",
+          "fields": ["rule.id", "rule.description", "timestamp", "data"],
+          "output_format": "json"
+        },
+        "next": ["action_11"]
+      },
+      {
+        "id": "action_9",
+        "name": "IOC Extraction",
+        "app": "cortex",
+        "function": "analyze_observables",
+        "parameters": {
+          "observables": [
+            {
+              "type": "ip",
+              "value": "$exec.action_1.agent.ip"
+            },
+            {
+              "type": "ip",
+              "value": "$exec.action_1.data.srcip"
+            }
+          ],
+          "analyzers": [
+            "VirusTotal_GetReport_3_0",
+            "Abuse_Finder_3_0",
+            "ThreatCrowd_1_0",
+            "TalosReputation_1_0"
+          ]
+        },
+        "next": ["action_12"]
+      },
+      {
+        "id": "action_10",
+        "name": "Network Sweep",
+        "app": "network_scanner",
+        "function": "scan_for_indicators",
+        "parameters": {
+          "scan_type": "ransomware_indicators",
+          "network_ranges": ["10.0.0.0/8", "192.168.0.0/16"],
+          "indicators": [
+            "file_extensions: .encrypt,.locked,.crypto",
+            "processes: conti,ryuk,maze,lockbit",
+            "network_signatures: ransom_payment,bitcoin_address"
+          ],
+          "exclude_hosts": ["$exec.action_1.agent.ip"]
+        },
+        "next": ["action_13"]
+      },
+      {
+        "id": "action_11",
+        "name": "Timeline Analysis",
+        "app": "dfir_iris",
+        "function": "create_timeline",
+        "parameters": {
+          "case_id": "$exec.action_4.case_id",
+          "events": "$exec.action_8.results",
+          "analysis_type": "ransomware_attack_chain",
+          "auto_correlate": true
+        },
+        "next": ["action_14"]
+      },
+      {
+        "id": "action_12",
+        "name": "Threat Intelligence Update",
+        "app": "misp",
+        "function": "create_event",
+        "parameters": {
+          "event_title": "Ransomware IOCs - $exec.action_1.agent.name",
+          "threat_level": "high",
+          "analysis": "ongoing",
+          "distribution": "internal",
+          "attributes": [
+            {
+              "type": "ip-dst",
+              "value": "$exec.action_1.data.srcip",
+              "category": "Network activity",
+              "comment": "Ransomware C2 communication"
+            },
+            {
+              "type": "hostname",
+              "value": "$exec.action_1.agent.name",
+              "category": "Artifacts dropped",
+              "comment": "Infected host"
+            }
+          ],
+          "tags": ["ransomware", "intelliguard-ai", "automated-detection"]
+        },
+        "next": ["action_15"]
+      },
+      {
+        "id": "action_13",
+        "name": "Lateral Movement Check",
+        "app": "wazuh",
+        "function": "search_lateral_movement",
+        "parameters": {
+          "source_host": "$exec.action_1.agent.name",
+          "timeframe": "last_24_hours",
+          "indicators": [
+            "psexec",
+            "wmic",
+            "net use",
+            "rdp connections",
+            "smb enumeration"
+          ]
+        },
+        "next": ["action_16"]
+      },
+      {
+        "id": "action_14",
+        "name": "Containment Verification",
+        "app": "network_security",
+        "function": "verify_isolation",
+        "parameters": {
+          "host_ip": "$exec.action_1.agent.ip",
+          "test_connections": [
+            "external_internet",
+            "internal_resources",
+            "file_shares"
+          ],
+          "expected_result": "blocked"
+        },
+        "next": ["action_17"]
+      },
+      {
+        "id": "action_15",
+        "name": "Recovery Assessment",
+        "app": "recovery_system",
+        "function": "assess_damage",
+        "parameters": {
+          "affected_systems": ["$exec.action_1.agent.name"],
+          "backup_status": "$exec.action_7.results",
+          "encryption_scope": "estimate",
+          "recovery_options": [
+            "restore_from_backup",
+            "decrypt_files",
+            "rebuild_system"
+          ]
+        },
+        "next": ["action_18"]
+      },
+      {
+        "id": "action_16",
+        "name": "Additional Isolation",
+        "app": "network_security",
+        "function": "isolate_multiple_hosts",
+        "parameters": {
+          "host_list": "$exec.action_13.suspected_hosts",
+          "isolation_type": "quarantine",
+          "condition": {
+            "field": "$exec.action_13.lateral_movement_detected",
+            "operator": "equals",
+            "value": "true"
+          }
+        },
+        "next": ["action_19"]
+      },
+      {
+        "id": "action_17",
+        "name": "Executive Briefing",
+        "app": "reporting",
+        "function": "generate_executive_summary",
+        "parameters": {
+          "template": "ransomware_incident",
+          "incident_data": {
+            "detection_time": "$exec.action_1.timestamp",
+            "affected_systems": ["$exec.action_1.agent.name"],
+            "containment_status": "$exec.action_14.status",
+            "backup_status": "$exec.action_7.status",
+            "threat_level": "critical",
+            "estimated_downtime": "$exec.action_15.downtime_estimate",
+            "recovery_eta": "$exec.action_15.recovery_eta"
+          },
+          "recipients": ["ceo@company.com", "cfo@company.com", "board@company.com"]
+        },
+        "next": ["action_20"]
+      },
+      {
+        "id": "action_18",
+        "name": "Compliance Notification",
+        "app": "compliance",
+        "function": "regulatory_notification",
+        "parameters": {
+          "incident_type": "ransomware",
+          "severity": "critical",
+          "affected_data_types": ["pii", "financial", "healthcare"],
+          "notification_requirements": [
+            {
+              "regulation": "gdpr",
+              "deadline": "72_hours",
+              "authority": "data_protection_authority"
+            },
+            {
+              "regulation": "hipaa",
+              "deadline": "60_days",
+              "authority": "hhs_ocr"
+            },
+            {
+              "regulation": "pci_dss",
+              "deadline": "immediately",
+              "authority": "acquiring_bank"
+            }
+          ],
+          "auto_draft": true,
+          "legal_review": true
+        },
+        "next": ["action_19"]
+      },
+      {
+        "id": "action_19",
+        "name": "Evidence Preservation",
+        "app": "forensics",
+        "function": "preserve_evidence",
+        "parameters": {
+          "target_systems": ["$exec.action_1.agent.name"],
+          "preservation_type": "full_disk_image",
+          "memory_dump": true,
+          "network_capture": true,
+          "chain_of_custody": true,
+          "storage_location": "forensics_vault",
+          "encryption": "aes256"
+        },
+        "next": ["action_20"]
+      },
+      {
+        "id": "action_20",
+        "name": "Incident Closure Check",
+        "app": "workflow_control",
+        "function": "evaluate_conditions",
+        "parameters": {
+          "conditions": [
+            {
+              "check": "containment_verified",
+              "status": "$exec.action_14.status",
+              "required": "success"
+            },
+            {
+              "check": "evidence_preserved",
+              "status": "$exec.action_19.status",
+              "required": "success"
+            },
+            {
+              "check": "notifications_sent",
+              "status": "$exec.action_6.status",
+              "required": "success"
+            },
+            {
+              "check": "case_created",
+              "status": "$exec.action_4.status",
+              "required": "success"
+            }
+          ]
+        },
+        "next": ["action_21"]
+      },
+      {
+        "id": "action_21",
+        "name": "Final Status Update",
+        "app": "thehive",
+        "function": "update_case",
+        "parameters": {
+          "case_id": "$exec.action_4.case_id",
+          "status": "containment_complete",
+          "summary": "Automated ransomware response completed successfully",
+          "observables": [
+            {
+              "type": "other",
+              "value": "containment_time",
+              "description": "$exec.workflow.execution_time seconds"
+            },
+            {
+              "type": "other",
+              "value": "isolation_status",
+              "description": "$exec.action_14.status"
+            }
+          ],
+          "tasks_update": [
+            {
+              "title": "Automated Response",
+              "status": "completed",
+              "description": "All automated containment actions completed successfully"
+            }
+          ]
+        },
+        "final": true
+      }
+    ],
+    "error_handling": {
+      "on_action_failure": {
+        "critical_actions": ["action_2", "action_6"],
+        "fallback": {
+          "app": "manual_escalation",
+          "function": "emergency_escalation",
+          "parameters": {
+            "escalation_level": "critical",
+            "notification_channels": ["phone", "sms", "slack"],
+            "on_call_team": "security_emergency"
+          }
+        }
+      },
+      "timeout_handling": {
+        "default_timeout": 60,
+        "critical_timeout": 30,
+        "escalation_on_timeout": true
+      }
+    },
+    "metrics": {
+      "track_execution_time": true,
+      "track_success_rate": true,
+      "track_false_positive_rate": true,
+      "custom_metrics": [
+        "containment_time",
+        "notification_time",
+        "evidence_preservation_time"
+      ]
+    },
+    "configuration": {
+      "environment": "production",
+      "log_level": "info",
+      "enable_debug": false,
+      "concurrent_executions": 5,
+      "rate_limiting": {
+        "max_executions_per_minute": 10,
+        "max_executions_per_hour": 100
+      }
+    }
+  },
+  "integrations": {
+    "wazuh": {
+      "endpoint": "https://wazuh.company.com:55000",
+      "api_key": "${WAZUH_API_KEY}",
+      "verify_ssl": true
+    },
+    "thehive": {
+      "endpoint": "https://thehive.company.com:9000",
+      "api_key": "${THEHIVE_API_KEY}",
+      "organization": "company"
+    },
+    "cortex": {
+      "endpoint": "https://cortex.company.com:9001",
+      "api_key": "${CORTEX_API_KEY}"
+    },
+    "active_directory": {
+      "domain_controller": "dc.company.local",
+      "service_account": "${AD_SERVICE_ACCOUNT}",
+      "password": "${AD_SERVICE_PASSWORD}"
+    },
+    "network_security": {
+      "firewall_api": "https://firewall.company.com/api",
+      "api_key": "${FIREWALL_API_KEY}",
+      "switch_management": "https://switch.company.com/api"
+    },
+    "slack": {
+      "webhook_url": "${SLACK_WEBHOOK_URL}",
+      "bot_token": "${SLACK_BOT_TOKEN}"
+    },
+    "email": {
+      "smtp_server": "smtp.company.com",
+      "smtp_port": 587,
+      "username": "${SMTP_USERNAME}",
+      "password": "${SMTP_PASSWORD}"
+    }
+  },
+  "testing": {
+    "test_scenarios": [
+      {
+        "name": "ransomware_detection_test",
+        "description": "Test automated response to ransomware detection",
+        "mock_data": {
+          "rule_id": "100051",
+          "rule_level": "12",
+          "agent_name": "test-workstation-01",
+          "agent_ip": "10.0.1.100",
+          "timestamp": "2025-09-07T14:30:00Z",
+          "description": "Mass file encryption detected"
+        },
+        "expected_actions": [
+          "host_isolation",
+          "incident_creation",
+          "notification_sent",
+          "evidence_preservation"
+        ]
+      }
+    ],
+    "validation_rules": [
+      {
+        "rule": "containment_time_sla",
+        "condition": "execution_time < 300",
+        "description": "Host isolation must complete within 5 minutes"
+      },
+      {
+        "rule": "notification_time_sla",
+        "condition": "notification_time < 60",
+        "description": "Emergency notifications must be sent within 1 minute"
+      }
+    ]
+  }
+}
