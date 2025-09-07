@@ -32,7 +32,7 @@ This project serves as both a technical demonstration and strategic proposal for
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    IntelliGuard-AI Architecture            │
+│                    IntelliGuard-AI Architecture             │
 ├─────────────────────────────────────────────────────────────┤
 │  Presentation Layer                                         │
 │  ├── Grafana Dashboards                                     │
@@ -40,25 +40,25 @@ This project serves as both a technical demonstration and strategic proposal for
 │  └── Executive Reporting                                    │
 ├─────────────────────────────────────────────────────────────┤
 │  SOAR Integration Layer                                     │
-│  ├── Shuffle (Workflow Automation)                         │
-│  ├── Cortex (Observable Analysis)                          │
-│  └── DFIR-IRIS (Incident Response)                         │
+│  ├── Shuffle (Workflow Automation)                          │
+│  ├── Cortex (Observable Analysis)                           │
+│  └── DFIR-IRIS (Incident Response)                          │
 ├─────────────────────────────────────────────────────────────┤
 │  AI/ML Analytics Engine                                     │
-│  ├── Threat Hunting Algorithms                             │
-│  ├── Behavioral Analysis                                   │
-│  └── Anomaly Detection                                     │
+│  ├── Threat Hunting Algorithms                              │
+│  ├── Behavioral Analysis                                    │
+│  └── Anomaly Detection                                      │
 ├─────────────────────────────────────────────────────────────┤
 │  Data Collection & Processing                               │
-│  ├── Wazuh (SIEM/XDR)                                     │
-│  ├── Prometheus (Metrics)                                  │
-│  └── Log Aggregation                                       │
+│  ├── Wazuh (SIEM/XDR)                                       │
+│  ├── Prometheus (Metrics)                                   │
+│  └── Log Aggregation                                        │
 ├─────────────────────────────────────────────────────────────┤
-│  Data Sources                                              │
-│  ├── Network Infrastructure                                │
-│  ├── Endpoints (Workstations/Servers)                     │
-│  ├── Cloud Services                                       │
-│  └── Third-party Integrations                             │
+│  Data Sources                                               │
+│  ├── Network Infrastructure                                 │
+│  ├── Endpoints (Workstations/Servers)                       │
+│  ├── Cloud Services                                         │
+│  └── Third-party Integrations                               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
