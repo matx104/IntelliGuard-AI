@@ -1,0 +1,744 @@
+{
+  "uptime_kuma_config": {
+    "name": "IntelliGuard-AI Service Monitoring",
+    "version": "1.0.0",
+    "description": "Comprehensive service availability monitoring for IntelliGuard-AI platform",
+    "author": "AL NAFI AI-Ops Diploma Project",
+    "created_date": "2025-09-07"
+  },
+
+  "monitoring_groups": [
+    {
+      "group_name": "Core Security Services",
+      "group_id": "core_security",
+      "description": "Critical security platform components",
+      "priority": "critical",
+      "monitors": [
+        {
+          "name": "Wazuh Manager",
+          "type": "http",
+          "url": "https://wazuh.company.com:443",
+          "method": "GET",
+          "headers": {
+            "User-Agent": "IntelliGuard-AI-Monitor"
+          },
+          "interval": 60,
+          "timeout": 30,
+          "retries": 3,
+          "upside_down": false,
+          "keyword": "Wazuh",
+          "ignore_tls": false,
+          "tags": ["security", "siem", "critical"],
+          "notification_settings": {
+            "slack": true,
+            "email": true,
+            "pagerduty": true
+          },
+          "expected_status_codes": [200, 401],
+          "description": "Wazuh SIEM dashboard availability"
+        },
+        {
+          "name": "Wazuh API",
+          "type": "http",
+          "url": "https://wazuh.company.com:55000",
+          "method": "GET",
+          "headers": {
+            "Authorization": "Bearer ${WAZUH_API_KEY}"
+          },
+          "interval": 120,
+          "timeout": 15,
+          "retries": 2,
+          "tags": ["security", "api", "critical"],
+          "notification_settings": {
+            "slack": true,
+            "email": true
+          },
+          "description": "Wazuh API endpoint availability"
+        },
+        {
+          "name": "TheHive Platform",
+          "type": "http",
+          "url": "http://thehive.company.com:9000",
+          "method": "GET",
+          "interval": 60,
+          "timeout": 20,
+          "retries": 3,
+          "keyword": "TheHive",
+          "tags": ["security", "case-management", "critical"],
+          "notification_settings": {
+            "slack": true,
+            "email": true
+          },
+          "description": "TheHive case management platform"
+        },
+        {
+          "name": "Cortex Analysis Engine",
+          "type": "http",
+          "url": "http://cortex.company.com:9001",
+          "method": "GET",
+          "interval": 120,
+          "timeout": 25,
+          "retries": 2,
+          "tags": ["security", "analysis", "high"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "Cortex threat analysis platform"
+        }
+      ]
+    },
+    {
+      "group_name": "Monitoring & Analytics",
+      "group_id": "monitoring",
+      "description": "Monitoring and visualization platforms",
+      "priority": "high",
+      "monitors": [
+        {
+          "name": "Grafana Dashboard",
+          "type": "http",
+          "url": "http://grafana.company.com:3000",
+          "method": "GET",
+          "interval": 60,
+          "timeout": 15,
+          "retries": 3,
+          "keyword": "Grafana",
+          "tags": ["monitoring", "visualization", "high"],
+          "notification_settings": {
+            "slack": true,
+            "email": true
+          },
+          "description": "Grafana analytics dashboard"
+        },
+        {
+          "name": "Prometheus Metrics",
+          "type": "http",
+          "url": "http://prometheus.company.com:9090",
+          "method": "GET",
+          "interval": 120,
+          "timeout": 10,
+          "retries": 2,
+          "keyword": "Prometheus",
+          "tags": ["monitoring", "metrics", "high"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "Prometheus metrics collection"
+        },
+        {
+          "name": "Alertmanager",
+          "type": "http",
+          "url": "http://alertmanager.company.com:9093",
+          "method": "GET",
+          "interval": 120,
+          "timeout": 10,
+          "retries": 2,
+          "keyword": "Alertmanager",
+          "tags": ["monitoring", "alerting", "high"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "Alertmanager notification system"
+        }
+      ]
+    },
+    {
+      "group_name": "Automation & Orchestration",
+      "group_id": "automation",
+      "description": "SOAR and automation platforms",
+      "priority": "high",
+      "monitors": [
+        {
+          "name": "Shuffle SOAR Platform",
+          "type": "http",
+          "url": "http://shuffle.company.com:3001",
+          "method": "GET",
+          "interval": 120,
+          "timeout": 20,
+          "retries": 2,
+          "keyword": "Shuffle",
+          "tags": ["automation", "soar", "high"],
+          "notification_settings": {
+            "slack": true,
+            "email": true
+          },
+          "description": "Shuffle workflow automation"
+        },
+        {
+          "name": "Shuffle API Health",
+          "type": "http",
+          "url": "http://shuffle.company.com:3001/api/v1/health",
+          "method": "GET",
+          "interval": 300,
+          "timeout": 15,
+          "retries": 2,
+          "expected_status_codes": [200],
+          "tags": ["automation", "api", "medium"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "Shuffle API health endpoint"
+        },
+        {
+          "name": "DFIR-IRIS Platform",
+          "type": "http",
+          "url": "http://dfir-iris.company.com:8000",
+          "method": "GET",
+          "interval": 300,
+          "timeout": 20,
+          "retries": 2,
+          "tags": ["forensics", "incident-response", "medium"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "DFIR-IRIS forensics platform"
+        }
+      ]
+    },
+    {
+      "group_name": "Infrastructure Services",
+      "group_id": "infrastructure",
+      "description": "Supporting infrastructure components",
+      "priority": "medium",
+      "monitors": [
+        {
+          "name": "Elasticsearch Cluster",
+          "type": "http",
+          "url": "http://elasticsearch.company.com:9200/_cluster/health",
+          "method": "GET",
+          "interval": 180,
+          "timeout": 10,
+          "retries": 2,
+          "keyword": "green",
+          "tags": ["infrastructure", "database", "high"],
+          "notification_settings": {
+            "slack": true,
+            "email": true
+          },
+          "description": "Elasticsearch cluster health"
+        },
+        {
+          "name": "Docker Host 1",
+          "type": "ping",
+          "hostname": "docker-host-01.company.com",
+          "interval": 60,
+          "timeout": 5,
+          "retries": 3,
+          "tags": ["infrastructure", "docker", "medium"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "Primary Docker host connectivity"
+        },
+        {
+          "name": "Docker Host 2",
+          "type": "ping",
+          "hostname": "docker-host-02.company.com",
+          "interval": 60,
+          "timeout": 5,
+          "retries": 3,
+          "tags": ["infrastructure", "docker", "medium"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "Secondary Docker host connectivity"
+        }
+      ]
+    },
+    {
+      "group_name": "Network & Security",
+      "group_id": "network_security",
+      "description": "Network infrastructure and security components",
+      "priority": "high",
+      "monitors": [
+        {
+          "name": "Core Firewall",
+          "type": "ping",
+          "hostname": "10.0.1.1",
+          "interval": 60,
+          "timeout": 3,
+          "retries": 3,
+          "tags": ["network", "security", "critical"],
+          "notification_settings": {
+            "slack": true,
+            "email": true,
+            "pagerduty": true
+          },
+          "description": "Core firewall connectivity"
+        },
+        {
+          "name": "DNS Server Primary",
+          "type": "dns",
+          "hostname": "8.8.8.8",
+          "dns_resolve_server": "10.0.1.10",
+          "dns_resolve_type": "A",
+          "interval": 120,
+          "timeout": 5,
+          "retries": 2,
+          "tags": ["network", "dns", "high"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "Primary DNS server resolution"
+        },
+        {
+          "name": "Internet Connectivity",
+          "type": "http",
+          "url": "https://www.google.com",
+          "method": "GET",
+          "interval": 300,
+          "timeout": 10,
+          "retries": 2,
+          "expected_status_codes": [200],
+          "tags": ["network", "internet", "medium"],
+          "notification_settings": {
+            "slack": true,
+            "email": false
+          },
+          "description": "External internet connectivity"
+        }
+      ]
+    },
+    {
+      "group_name": "Business Applications",
+      "group_id": "business_apps",
+      "description": "Critical business applications",
+      "priority": "high",
+      "monitors": [
+        {
+          "name": "Company Website",
+          "type": "http",
+          "url": "https://www.company.com",
+          "method": "GET",
+          "interval": 300,
+          "timeout": 15,
+          "retries": 2,
+          "keyword": "Company",
+          "tags": ["business", "website", "high"],
+          "notification_settings": {
+            "slack": true,
+            "email": true
+          },
+          "description": "Main company website"
+        },
+        {
+          "name": "Customer Portal",
+          "type": "http",
+          "url": "https://portal.company.com",
+          "method": "GET",
+          "interval": 180,
+          "timeout": 20,
+          "retries": 3,
+          "tags": ["business", "portal", "critical"],
+          "notification_settings": {
+            "slack": true,
+            "email": true,
+            "pagerduty": true
+          },
+          "description": "Customer portal availability"
+        },
+        {
+          "name": "API Gateway",
+          "type": "http",
+          "url": "https://api.company.com/health",
+          "method": "GET",
+          "interval": 120,
+          "timeout": 10,
+          "retries": 2,
+          "expected_status_codes": [200],
+          "tags": ["business", "api", "critical"],
+          "notification_settings": {
+            "slack": true,
+            "email": true
+          },
+          "description": "API gateway health check"
+        }
+      ]
+    }
+  ],
+
+  "notification_channels": [
+    {
+      "type": "slack",
+      "name": "Security Alerts",
+      "webhook_url": "${SLACK_WEBHOOK_URL}",
+      "channel": "#service-status",
+      "username": "UptimeKuma-IntelliGuard",
+      "icon_emoji": ":chart_with_upwards_trend:",
+      "default": true,
+      "send_resolve": true,
+      "send_reminder": false
+    },
+    {
+      "type": "email",
+      "name": "Security Team Email",
+      "smtp_host": "smtp.company.com",
+      "smtp_port": 587,
+      "smtp_username": "uptime-alerts@company.com",
+      "smtp_password": "${SMTP_PASSWORD}",
+      "smtp_tls": true,
+      "from_email": "uptime-alerts@company.com",
+      "to_email": "security-team@company.com",
+      "subject": "IntelliGuard-AI Service Alert: {monitor_name}",
+      "default": false,
+      "send_resolve": true
+    },
+    {
+      "type": "webhook",
+      "name": "Shuffle Integration",
+      "webhook_url": "http://shuffle:3001/api/v1/hooks/uptime-kuma",
+      "http_method": "POST",
+      "content_type": "application/json",
+      "body": {
+        "monitor_name": "{monitor_name}",
+        "monitor_status": "{monitor_status}",
+        "monitor_url": "{monitor_url}",
+        "alert_time": "{alert_time}",
+        "response_time": "{response_time}",
+        "source": "uptime-kuma"
+      },
+      "headers": {
+        "Authorization": "Bearer ${SHUFFLE_API_TOKEN}",
+        "X-Source": "IntelliGuard-AI-UptimeKuma"
+      },
+      "default": false,
+      "send_resolve": true
+    },
+    {
+      "type": "pagerduty",
+      "name": "Critical Services PagerDuty",
+      "integration_key": "${PAGERDUTY_INTEGRATION_KEY_UPTIME}",
+      "default": false,
+      "send_resolve": true
+    }
+  ],
+
+  "status_pages": [
+    {
+      "slug": "intelliguard-ai-status",
+      "title": "IntelliGuard-AI Service Status",
+      "description": "Real-time status of IntelliGuard-AI security platform components",
+      "theme": "auto",
+      "published": true,
+      "show_tags": true,
+      "domain_names": ["status.company.com"],
+      "custom_css": "",
+      "custom_js": "",
+      "header": "IntelliGuard-AI Platform Status",
+      "footer": "© 2025 Company Security Operations Center",
+      "show_powered_by": false,
+      "google_analytics_tag": "",
+      "monitor_groups": [
+        {
+          "name": "🛡️ Core Security Services",
+          "monitors": [
+            "Wazuh Manager",
+            "Wazuh API", 
+            "TheHive Platform",
+            "Cortex Analysis Engine"
+          ]
+        },
+        {
+          "name": "📊 Monitoring & Analytics",
+          "monitors": [
+            "Grafana Dashboard",
+            "Prometheus Metrics",
+            "Alertmanager"
+          ]
+        },
+        {
+          "name": "🤖 Automation & Orchestration", 
+          "monitors": [
+            "Shuffle SOAR Platform",
+            "Shuffle API Health",
+            "DFIR-IRIS Platform"
+          ]
+        },
+        {
+          "name": "🌐 Network & Infrastructure",
+          "monitors": [
+            "Core Firewall",
+            "DNS Server Primary",
+            "Internet Connectivity",
+            "Elasticsearch Cluster"
+          ]
+        },
+        {
+          "name": "💼 Business Applications",
+          "monitors": [
+            "Company Website",
+            "Customer Portal", 
+            "API Gateway"
+          ]
+        }
+      ],
+      "incident_management": {
+        "enabled": true,
+        "auto_create": true,
+        "templates": [
+          {
+            "type": "maintenance",
+            "title": "Scheduled Maintenance - {service_name}",
+            "content": "We are performing scheduled maintenance on {service_name}. Expected downtime: {duration}."
+          },
+          {
+            "type": "outage",
+            "title": "Service Outage - {service_name}",
+            "content": "We are currently experiencing issues with {service_name}. Our team is investigating and working to resolve the issue."
+          },
+          {
+            "type": "degraded",
+            "title": "Performance Issues - {service_name}", 
+            "content": "We are experiencing performance degradation with {service_name}. Service functionality may be impacted."
+          }
+        ]
+      }
+    },
+    {
+      "slug": "internal-security-dashboard",
+      "title": "Internal Security Operations Dashboard",
+      "description": "Internal status page for security operations team",
+      "theme": "dark",
+      "published": false,
+      "password_protected": true,
+      "password": "${INTERNAL_STATUS_PASSWORD}",
+      "show_tags": true,
+      "custom_css": ".bg-primary { background-color: #1e3c72 !important; }",
+      "header": "🔒 Security Operations - Internal Status",
+      "footer": "Confidential - Security Team Only",
+      "monitor_groups": [
+        {
+          "name": "🚨 Critical Security Alerts",
+          "monitors": [
+            "Wazuh Manager",
+            "TheHive Platform", 
+            "Cortex Analysis Engine"
+          ]
+        },
+        {
+          "name": "📈 Threat Detection Performance",
+          "monitors": [
+            "Wazuh API",
+            "Prometheus Metrics"
+          ]
+        },
+        {
+          "name": "🔧 Infrastructure Health",
+          "monitors": [
+            "Docker Host 1",
+            "Docker Host 2",
+            "Elasticsearch Cluster"
+          ]
+        }
+      ]
+    }
+  ],
+
+  "maintenance_windows": [
+    {
+      "title": "Weekly Security Platform Maintenance",
+      "description": "Regular maintenance window for security platform updates",
+      "strategy": "recurring",
+      "recurring_type": "weekly",
+      "recurring_interval": 1,
+      "weekdays": [0], 
+      "start_time": "02:00",
+      "end_time": "04:00",
+      "timezone": "America/New_York",
+      "affected_monitors": [
+        "Wazuh Manager",
+        "TheHive Platform", 
+        "Cortex Analysis Engine",
+        "Grafana Dashboard"
+      ],
+      "notify_before": 3600,
+      "auto_pause_notifications": true
+    },
+    {
+      "title": "Monthly Infrastructure Patching",
+      "description": "Monthly operating system and infrastructure patching",
+      "strategy": "recurring", 
+      "recurring_type": "monthly",
+      "recurring_interval": 1,
+      "day_of_month": 1,
+      "start_time": "01:00",
+      "end_time": "05:00",
+      "timezone": "America/New_York",
+      "affected_monitors": [
+        "Docker Host 1",
+        "Docker Host 2", 
+        "Elasticsearch Cluster",
+        "Core Firewall"
+      ],
+      "notify_before": 86400,
+      "auto_pause_notifications": true
+    }
+  ],
+
+  "sla_monitoring": {
+    "enabled": true,
+    "reporting_period": "monthly",
+    "targets": [
+      {
+        "monitor_group": "core_security",
+        "availability_target": 99.9,
+        "response_time_target": 2000,
+        "alert_threshold": 99.5
+      },
+      {
+        "monitor_group": "monitoring", 
+        "availability_target": 99.5,
+        "response_time_target": 3000,
+        "alert_threshold": 99.0
+      },
+      {
+        "monitor_group": "business_apps",
+        "availability_target": 99.95,
+        "response_time_target": 1500,
+        "alert_threshold": 99.8
+      }
+    ],
+    "notifications": {
+      "sla_breach": true,
+      "sla_warning": true,
+      "monthly_report": true
+    }
+  },
+
+  "advanced_settings": {
+    "data_retention": {
+      "heartbeat_data": "365d",
+      "event_data": "180d", 
+      "status_page_data": "730d"
+    },
+    "performance": {
+      "check_interval_minimum": 30,
+      "concurrent_checks": 10,
+      "timeout_multiplier": 1.5
+    },
+    "security": {
+      "enable_2fa": true,
+      "session_timeout": 3600,
+      "password_policy": {
+        "minimum_length": 12,
+        "require_uppercase": true,
+        "require_lowercase": true, 
+        "require_numbers": true,
+        "require_symbols": true
+      }
+    },
+    "api": {
+      "rate_limiting": {
+        "enabled": true,
+        "requests_per_minute": 60,
+        "requests_per_hour": 1000
+      },
+      "authentication": {
+        "require_api_key": true,
+        "api_key_header": "X-API-Key"
+      }
+    }
+  },
+
+  "integration_webhooks": [
+    {
+      "name": "Grafana Integration",
+      "url": "http://grafana:3000/api/annotations",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer ${GRAFANA_API_KEY}",
+        "Content-Type": "application/json"
+      },
+      "body_template": {
+        "dashboardId": 1,
+        "panelId": 1,
+        "time": "{timestamp}",
+        "timeEnd": "{timestamp_end}",
+        "tags": ["uptime-kuma", "service-status"],
+        "text": "Service {monitor_name} is {status}"
+      },
+      "trigger_on": ["down", "up"],
+      "enabled": true
+    },
+    {
+      "name": "TheHive Case Creation",
+      "url": "http://thehive:9000/api/alert", 
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer ${THEHIVE_API_KEY}",
+        "Content-Type": "application/json"
+      },
+      "body_template": {
+        "title": "Service Outage: {monitor_name}",
+        "description": "Service monitoring detected outage for {monitor_name}",
+        "type": "service-outage",
+        "source": "uptime-kuma",
+        "sourceRef": "{monitor_id}",
+        "severity": 2,
+        "tags": ["service-outage", "monitoring", "infrastructure"],
+        "tlp": 2,
+        "observables": [
+          {
+            "dataType": "url",
+            "data": "{monitor_url}",
+            "message": "Affected service URL"
+          }
+        ]
+      },
+      "trigger_on": ["down"],
+      "conditions": {
+        "tags": ["critical", "high"],
+        "downtime_threshold": 300
+      },
+      "enabled": true
+    }
+  ],
+
+  "custom_scripts": {
+    "pre_check": {
+      "enabled": false,
+      "script_path": "/scripts/pre_check.sh",
+      "timeout": 30
+    },
+    "post_check": {
+      "enabled": true,
+      "script_path": "/scripts/post_check.sh", 
+      "timeout": 15,
+      "run_on": ["status_change"]
+    },
+    "alert_enrichment": {
+      "enabled": true,
+      "script_path": "/scripts/enrich_alert.py",
+      "timeout": 20,
+      "parameters": {
+        "threat_intel_api": "http://intelliguard-ti:5000/api",
+        "correlation_threshold": 0.7
+      }
+    }
+  },
+
+  "backup_configuration": {
+    "enabled": true,
+    "schedule": "0 2 * * *",
+    "retention_days": 30,
+    "backup_location": "/backups/uptime-kuma",
+    "include": [
+      "monitors",
+      "notifications", 
+      "status_pages",
+      "settings"
+    ],
+    "compression": true,
+    "encryption": {
+      "enabled": true,
+      "key_file": "/secrets/backup.key"
+    }
+  }
+}

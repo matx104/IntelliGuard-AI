@@ -1,0 +1,414 @@
+# IntelliGuard-AI Prometheus Alerting Rules
+# File: intelliguard_alerting_rules.yml
+# Purpose: Comprehensive alerting rules for security operations
+# Author: AL NAFI AI-Ops Diploma Project
+# Date: September 2025
+
+groups:
+  # Security Platform Alerts
+  - name: intelliguard_security_platform
+    interval: 30s
+    rules:
+      # Critical Security Service Alerts
+      - alert: WazuhManagerDown
+        expr: up{job="wazuh-manager"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: wazuh
+          category: security
+        annotations:
+          summary: "Wazuh Manager is down"
+          description: "Wazuh Manager on {{ $labels.instance }} has been down for more than 1 minute"
+          runbook_url: "https://docs.company.com/runbooks/wazuh-down"
+          automated_actions: "Attempting automatic restart, escalating to on-call team"
+
+      - alert: TheHivePlatformDown
+        expr: up{job="thehive"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: thehive
+          category: security
+        annotations:
+          summary: "TheHive platform is unavailable"
+          description: "TheHive case management platform has been down for {{ $value }} minutes"
+          runbook_url: "https://docs.company.com/runbooks/thehive-down"
+
+      - alert: CortexAnalysisDown
+        expr: up{job="cortex"} == 0
+        for: 3m
+        labels:
+          severity: high
+          service: cortex
+          category: security
+        annotations:
+          summary: "Cortex analysis engine is down"
+          description: "Cortex threat analysis platform is unavailable"
+          analysis_steps: "Check Cortex logs, verify analyzer connectivity, restart if necessary"
+
+      # High Volume Security Alerts
+      - alert: HighVolumeSecurityAlerts
+        expr: rate(wazuh_alerts_total{level=~"10|11|12|13|14|15"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: high
+          service: wazuh
+          category: security
+        annotations:
+          summary: "High volume of critical security alerts detected"
+          description: "{{ $value }} critical alerts per second over last 5 minutes"
+          analysis_steps: "Review alert patterns, check for potential attack campaigns"
+
+      # Ransomware Detection
+      - alert: RansomwareDetected
+        expr: wazuh_alerts_total{rule_id=~"100051|100052|100053|100602"} > 0
+        for: 0s
+        labels:
+          severity: critical
+          service: wazuh
+          category: security
+          alertname: RansomwareDetected
+        annotations:
+          summary: "RANSOMWARE ACTIVITY DETECTED"
+          description: "Ransomware indicators detected on {{ $labels.agent_name }}"
+          automated_actions: "Host isolation initiated, incident case created, emergency team notified"
+          runbook_url: "https://docs.company.com/runbooks/ransomware-response"
+
+      # APT Activity Detection
+      - alert: APTActivityDetected
+        expr: wazuh_alerts_total{rule_id=~"100001|100002|100003|100004|100005"} > 3
+        for: 1m
+        labels:
+          severity: critical
+          service: wazuh
+          category: security
+          alertname: APTActivityDetected
+        annotations:
+          summary: "Advanced Persistent Threat activity detected"
+          description: "Multiple APT indicators detected: {{ $value }} alerts"
+          automated_actions: "Threat hunting initiated, forensic evidence collection started"
+
+      # Data Breach Suspected
+      - alert: DataBreachSuspected
+        expr: wazuh_alerts_total{rule_id=~"100251|100252|100253"} > 5
+        for: 30s
+        labels:
+          severity: critical
+          service: wazuh
+          category: security
+          alertname: DataBreachSuspected
+        annotations:
+          summary: "Potential data breach activity detected"
+          description: "Multiple data exfiltration indicators: {{ $value }} alerts"
+          automated_actions: "DLP policies activated, legal team notified, compliance assessment initiated"
+
+  # Monitoring Platform Alerts
+  - name: intelliguard_monitoring_platform
+    interval: 60s
+    rules:
+      # Grafana Alerts
+      - alert: GrafanaDashboardDown
+        expr: up{job="grafana"} == 0
+        for: 2m
+        labels:
+          severity: high
+          service: grafana
+          category: monitoring
+        annotations:
+          summary: "Grafana dashboard is down"
+          description: "Grafana analytics platform is unavailable"
+
+      # Prometheus Alerts
+      - alert: PrometheusDown
+        expr: up{job="prometheus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: prometheus
+          category: monitoring
+        annotations:
+          summary: "Prometheus monitoring is down"
+          description: "Prometheus metrics collection is unavailable"
+
+      # Alertmanager Alerts
+      - alert: AlertmanagerDown
+        expr: up{job="alertmanager"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: alertmanager
+          category: monitoring
+        annotations:
+          summary: "Alertmanager is down"
+          description: "Alert notification system is unavailable"
+
+      # High Alert Volume
+      - alert: HighAlertVolume
+        expr: rate(alertmanager_alerts_received_total[5m]) > 50
+        for: 3m
+        labels:
+          severity: medium
+          service: alertmanager
+          category: monitoring
+        annotations:
+          summary: "High volume of alerts being processed"
+          description: "{{ $value }} alerts per second being processed"
+
+  # Infrastructure Alerts
+  - name: intelliguard_infrastructure
+    interval: 60s
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: (100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 85
+        for: 5m
+        labels:
+          severity: medium
+          service: infrastructure
+          category: infrastructure
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 3m
+        labels:
+          severity: high
+          service: infrastructure
+          category: infrastructure
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Low Disk Space
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 2m
+        labels:
+          severity: high
+          service: infrastructure
+          category: infrastructure
+        annotations:
+          summary: "Low disk space detected"
+          description: "Disk usage is {{ $value }}% on {{ $labels.instance }} {{ $labels.mountpoint }}"
+
+      # Docker Container Down
+      - alert: DockerContainerDown
+        expr: up{job="docker"} == 0
+        for: 1m
+        labels:
+          severity: high
+          service: docker
+          category: infrastructure
+        annotations:
+          summary: "Docker container is down"
+          description: "Docker container {{ $labels.container_name }} is down"
+
+  # Elasticsearch Alerts
+  - name: intelliguard_elasticsearch
+    interval: 120s
+    rules:
+      # Elasticsearch Cluster Red
+      - alert: ElasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          service: elasticsearch
+          category: infrastructure
+        annotations:
+          summary: "Elasticsearch cluster status is RED"
+          description: "Elasticsearch cluster health is critical"
+
+      # Elasticsearch High JVM Memory
+      - alert: ElasticsearchHighJVMMemory
+        expr: elasticsearch_jvm_memory_used_percent > 90
+        for: 5m
+        labels:
+          severity: high
+          service: elasticsearch
+          category: infrastructure
+        annotations:
+          summary: "Elasticsearch JVM memory usage is high"
+          description: "JVM memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+  # Business Logic Alerts
+  - name: intelliguard_business_logic
+    interval: 300s
+    rules:
+      # Low Detection Rate
+      - alert: LowThreatDetectionRate
+        expr: rate(wazuh_alerts_total[1h]) < 0.1
+        for: 10m
+        labels:
+          severity: medium
+          service: wazuh
+          category: security
+        annotations:
+          summary: "Unusually low threat detection rate"
+          description: "Only {{ $value }} alerts per second in the last hour"
+          analysis_steps: "Check agent connectivity, review rule effectiveness"
+
+      # High False Positive Rate
+      - alert: HighFalsePositiveRate
+        expr: (wazuh_false_positive_rate * 100) > 25
+        for: 30m
+        labels:
+          severity: medium
+          service: wazuh
+          category: security
+        annotations:
+          summary: "High false positive rate detected"
+          description: "False positive rate is {{ $value }}%"
+          analysis_steps: "Review and tune detection rules"
+
+      # SLA Breach Warning
+      - alert: ResponseTimeSLABreach
+        expr: wazuh_mean_time_to_response > 1800  # 30 minutes
+        for: 5m
+        labels:
+          severity: medium
+          service: wazuh
+          category: business
+        annotations:
+          summary: "Response time SLA breach warning"
+          description: "Mean response time is {{ $value }} seconds"
+
+  # Network Security Alerts
+  - name: intelliguard_network_security
+    interval: 60s
+    rules:
+      # Firewall Down
+      - alert: FirewallDown
+        expr: up{job="snmp-devices", device_type="firewall"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: firewall
+          category: network
+        annotations:
+          summary: "Network firewall is down"
+          description: "Firewall {{ $labels.instance }} is unreachable"
+
+      # High Network Traffic
+      - alert: HighNetworkTraffic
+        expr: rate(node_network_receive_bytes_total[5m]) > 100000000  # 100MB/s
+        for: 5m
+        labels:
+          severity: medium
+          service: network
+          category: infrastructure
+        annotations:
+          summary: "High network traffic detected"
+          description: "Network traffic is {{ $value }} bytes/sec on {{ $labels.instance }}"
+
+  # Automation Platform Alerts
+  - name: intelliguard_automation
+    interval: 120s
+    rules:
+      # Shuffle SOAR Down
+      - alert: ShuffleSOARDown
+        expr: up{job="shuffle"} == 0
+        for: 2m
+        labels:
+          severity: high
+          service: shuffle
+          category: automation
+        annotations:
+          summary: "Shuffle SOAR platform is down"
+          description: "Workflow automation platform is unavailable"
+
+      # High Workflow Failure Rate
+      - alert: HighWorkflowFailureRate
+        expr: (shuffle_workflow_failure_rate * 100) > 10
+        for: 10m
+        labels:
+          severity: medium
+          service: shuffle
+          category: automation
+        annotations:
+          summary: "High workflow failure rate"
+          description: "Workflow failure rate is {{ $value }}%"
+
+      # DFIR-IRIS Platform Down
+      - alert: DFIRIRISDown
+        expr: up{job="dfir-iris"} == 0
+        for: 3m
+        labels:
+          severity: medium
+          service: dfir-iris
+          category: automation
+        annotations:
+          summary: "DFIR-IRIS platform is down"
+          description: "Digital forensics platform is unavailable"
+
+  # Uptime Kuma Integration Alerts
+  - name: intelliguard_uptime_monitoring
+    interval: 60s
+    rules:
+      # Service Availability Drop
+      - alert: ServiceAvailabilityDrop
+        expr: uptime_kuma_monitor_status == 0
+        for: 1m
+        labels:
+          severity: high
+          service: "{{ $labels.monitor_name }}"
+          category: availability
+        annotations:
+          summary: "Service availability issue detected"
+          description: "{{ $labels.monitor_name }} is reporting as down"
+
+      # High Response Time
+      - alert: HighServiceResponseTime
+        expr: uptime_kuma_monitor_response_time > 5000  # 5 seconds
+        for: 3m
+        labels:
+          severity: medium
+          service: "{{ $labels.monitor_name }}"
+          category: performance
+        annotations:
+          summary: "High service response time"
+          description: "{{ $labels.monitor_name }} response time is {{ $value }}ms"
+
+  # Security Metrics Alerts
+  - name: intelliguard_security_metrics
+    interval: 300s
+    rules:
+      # ROI Tracking Alert
+      - alert: SecurityROIBelowTarget
+        expr: intelliguard_monthly_roi < 50  # Below 50% monthly ROI
+        for: 1h
+        labels:
+          severity: low
+          service: business
+          category: business
+        annotations:
+          summary: "Security investment ROI below target"
+          description: "Monthly ROI is {{ $value }}%, below 50% target"
+
+      # Cost Savings Tracking
+      - alert: CostSavingsBelowProjection
+        expr: intelliguard_monthly_cost_savings < 100000  # Below $100k monthly
+        for: 24h
+        labels:
+          severity: low
+          service: business
+          category: business
+        annotations:
+          summary: "Cost savings below projection"
+          description: "Monthly cost savings: ${{ $value }}, below $100k target"
+
+      # Threat Prevention Success Rate
+      - alert: LowThreatPreventionRate
+        expr: (intelliguard_threats_prevented / intelliguard_threats_detected) < 0.9
+        for: 1h
+        labels:
+          severity: medium
+          service: security
+          category: business
+        annotations:
+          summary: "Threat prevention success rate low"
+          description: "Prevention rate is {{ $value | humanizePercentage }}, below 90% target"

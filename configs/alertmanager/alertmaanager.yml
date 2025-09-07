@@ -1,0 +1,392 @@
+# IntelliGuard-AI Alertmanager Configuration
+# File: alertmanager.yml
+# Purpose: Advanced alerting and notification management for SOC operations
+# Author: AL NAFI AI-Ops Diploma Project
+# Date: September 2025
+
+global:
+  # Global SMTP configuration
+  smtp_smarthost: 'smtp.company.com:587'
+  smtp_from: 'intelliguard-alerts@company.com'
+  smtp_auth_username: 'intelliguard-alerts@company.com'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+  
+  # Global Slack configuration
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+  
+  # Global PagerDuty configuration
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+  
+  # Resolve timeout
+  resolve_timeout: 5m
+
+# Routing configuration
+route:
+  group_by: ['alertname', 'severity', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'web.hook'
+  
+  routes:
+    # Critical Security Alerts - Immediate escalation
+    - match:
+        severity: critical
+      receiver: 'critical-security-team'
+      group_wait: 0s
+      repeat_interval: 5m
+      routes:
+        - match:
+            alertname: 'RansomwareDetected'
+          receiver: 'emergency-response-team'
+          group_wait: 0s
+          repeat_interval: 1m
+        - match:
+            alertname: 'APTActivityDetected'
+          receiver: 'threat-hunting-team'
+          group_wait: 0s
+          repeat_interval: 2m
+        - match:
+            alertname: 'DataBreachSuspected'
+          receiver: 'compliance-team'
+          group_wait: 0s
+          repeat_interval: 3m
+    
+    # High Priority Security Alerts
+    - match:
+        severity: high
+      receiver: 'high-priority-security'
+      group_wait: 30s
+      repeat_interval: 30m
+      routes:
+        - match:
+            service: 'wazuh'
+          receiver: 'soc-analysts'
+        - match:
+            service: 'thehive'
+          receiver: 'incident-response-team'
+    
+    # Medium Priority Alerts
+    - match:
+        severity: medium
+      receiver: 'medium-priority-alerts'
+      group_wait: 2m
+      repeat_interval: 2h
+    
+    # Infrastructure Monitoring
+    - match:
+        category: 'infrastructure'
+      receiver: 'infrastructure-team'
+      group_wait: 1m
+      repeat_interval: 1h
+      routes:
+        - match:
+            service: 'prometheus'
+          receiver: 'monitoring-team'
+        - match:
+            service: 'grafana'
+          receiver: 'monitoring-team'
+    
+    # Service Availability Alerts
+    - match:
+        category: 'availability'
+      receiver: 'service-availability'
+      group_wait: 30s
+      repeat_interval: 15m
+    
+    # Business Hours vs After Hours
+    - match_re:
+        time: '^(09|1[0-7]):[0-5][0-9]$'  # Business hours 09:00-17:59
+      receiver: 'business-hours-team'
+    - match_re:
+        time: '^(1[8-9]|2[0-3]|0[0-8]):[0-5][0-9]$'  # After hours
+      receiver: 'on-call-team'
+
+# Inhibition rules
+inhibit_rules:
+  # Inhibit any warning-level alerts if the same alert is already critical
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service', 'instance']
+  
+  # Inhibit host-level alerts if the entire service is down
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '(HostDown|DiskSpaceLow|HighCPU|HighMemory)'
+    equal: ['service']
+  
+  # Inhibit individual component alerts during maintenance
+  - source_match:
+      alertname: 'MaintenanceMode'
+    target_match_re:
+      alertname: '.*'
+    equal: ['service']
+
+# Receiver configurations
+receivers:
+  # Default webhook receiver
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://shuffle:3001/api/v1/hooks/alertmanager'
+        send_resolved: true
+        http_config:
+          bearer_token: '${SHUFFLE_API_TOKEN}'
+        title: 'IntelliGuard-AI Alert: {{ .GroupLabels.alertname }}'
+        text: 'Alert Details: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  # Critical Security Team - Multiple channels
+  - name: 'critical-security-team'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#security-emergency'
+        username: 'IntelliGuard-AI-Critical'
+        icon_emoji: ':rotating_light:'
+        title: 'CRITICAL SECURITY ALERT'
+        text: |
+          🚨 **CRITICAL SECURITY INCIDENT** 🚨
+          
+          **Alert:** {{ .GroupLabels.alertname }}
+          **Severity:** {{ .GroupLabels.severity }}
+          **Service:** {{ .GroupLabels.service }}
+          **Time:** {{ .GroupLabels.timestamp }}
+          
+          **Details:**
+          {{ range .Alerts }}
+          • {{ .Annotations.summary }}
+          • {{ .Annotations.description }}
+          {{ end }}
+          
+          **Action Required:** Immediate response required
+          **Escalation:** Auto-escalated to on-call team
+        actions:
+          - type: 'button'
+            text: 'View in Grafana'
+            url: 'https://grafana.company.com/d/intelliguard-executive'
+          - type: 'button'
+            text: 'Open TheHive'
+            url: 'https://thehive.company.com'
+        send_resolved: true
+    
+    email_configs:
+      - to: 'ciso@company.com'
+        from: 'intelliguard-alerts@company.com'
+        subject: '[CRITICAL] IntelliGuard-AI Security Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2 style="color: #d32f2f;">🚨 CRITICAL SECURITY ALERT</h2>
+          
+          <p><strong>Alert Name:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Severity:</strong> <span style="color: #d32f2f; font-weight: bold;">{{ .GroupLabels.severity }}</span></p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Timestamp:</strong> {{ .GroupLabels.timestamp }}</p>
+          
+          <h3>Alert Details:</h3>
+          <ul>
+          {{ range .Alerts }}
+          <li><strong>Summary:</strong> {{ .Annotations.summary }}</li>
+          <li><strong>Description:</strong> {{ .Annotations.description }}</li>
+          <li><strong>Runbook:</strong> <a href="{{ .Annotations.runbook_url }}">{{ .Annotations.runbook_url }}</a></li>
+          {{ end }}
+          </ul>
+          
+          <h3>Quick Actions:</h3>
+          <p>
+            <a href="https://grafana.company.com/d/intelliguard-executive" style="background: #1976d2; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">View Dashboard</a>
+            <a href="https://thehive.company.com" style="background: #388e3c; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; margin-left: 10px;">Open Case Management</a>
+          </p>
+        send_resolved: true
+    
+    pagerduty_configs:
+      - routing_key: '${PAGERDUTY_INTEGRATION_KEY_CRITICAL}'
+        description: 'IntelliGuard-AI Critical Security Alert: {{ .GroupLabels.alertname }}'
+        severity: 'critical'
+        source: 'IntelliGuard-AI'
+        component: '{{ .GroupLabels.service }}'
+        group: 'security'
+        class: 'security-incident'
+        details:
+          alert_name: '{{ .GroupLabels.alertname }}'
+          service: '{{ .GroupLabels.service }}'
+          description: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+          runbook: '{{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}'
+
+  # Emergency Response Team - Ransomware/APT
+  - name: 'emergency-response-team'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#emergency-response'
+        username: 'IntelliGuard-AI-Emergency'
+        icon_emoji: ':fire:'
+        title: 'EMERGENCY SECURITY RESPONSE REQUIRED'
+        text: |
+          🔥 **EMERGENCY SECURITY INCIDENT** 🔥
+          
+          **Alert:** {{ .GroupLabels.alertname }}
+          **Category:** Emergency Response Required
+          **Immediate Action:** Activate emergency response procedures
+          
+          {{ range .Alerts }}
+          **Summary:** {{ .Annotations.summary }}
+          **Details:** {{ .Annotations.description }}
+          **Automated Actions:** {{ .Annotations.automated_actions }}
+          {{ end }}
+          
+          **Response Team:** @security-emergency @incident-commander
+        send_resolved: true
+    
+    webhook_configs:
+      - url: 'http://shuffle:3001/api/v1/hooks/emergency-response'
+        send_resolved: true
+        http_config:
+          bearer_token: '${SHUFFLE_API_TOKEN}'
+
+  # SOC Analysts - Primary security monitoring
+  - name: 'soc-analysts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#soc-alerts'
+        username: 'IntelliGuard-AI-SOC'
+        icon_emoji: ':shield:'
+        title: 'SOC Alert: {{ .GroupLabels.alertname }}'
+        text: |
+          🛡️ **Security Alert Requiring Analysis**
+          
+          **Alert:** {{ .GroupLabels.alertname }}
+          **Severity:** {{ .GroupLabels.severity }}
+          **Service:** {{ .GroupLabels.service }}
+          
+          {{ range .Alerts }}
+          **Summary:** {{ .Annotations.summary }}
+          **Analysis Required:** {{ .Annotations.analysis_steps }}
+          {{ end }}
+          
+          **Assigned:** @soc-analyst-on-duty
+        send_resolved: true
+
+  # High Priority Security Alerts
+  - name: 'high-priority-security'
+    email_configs:
+      - to: 'security-team@company.com'
+        from: 'intelliguard-alerts@company.com'
+        subject: '[HIGH] IntelliGuard-AI Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2 style="color: #f57c00;">⚠️ HIGH PRIORITY SECURITY ALERT</h2>
+          
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          
+          {{ range .Alerts }}
+          <p><strong>Summary:</strong> {{ .Annotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .Annotations.description }}</p>
+          {{ end }}
+        send_resolved: true
+    
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#security-alerts'
+        username: 'IntelliGuard-AI'
+        icon_emoji: ':warning:'
+        title: 'High Priority Security Alert'
+        text: |
+          ⚠️ **High Priority Security Alert**
+          
+          **Alert:** {{ .GroupLabels.alertname }}
+          **Service:** {{ .GroupLabels.service }}
+          {{ range .Alerts }}
+          **Summary:** {{ .Annotations.summary }}
+          {{ end }}
+        send_resolved: true
+
+  # Medium Priority Alerts
+  - name: 'medium-priority-alerts'
+    email_configs:
+      - to: 'security-team@company.com'
+        from: 'intelliguard-alerts@company.com'
+        subject: '[MEDIUM] IntelliGuard-AI Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2 style="color: #1976d2;">ℹ️ MEDIUM PRIORITY ALERT</h2>
+          
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          
+          {{ range .Alerts }}
+          <p><strong>Summary:</strong> {{ .Annotations.summary }}</p>
+          {{ end }}
+        send_resolved: true
+
+  # Infrastructure Team
+  - name: 'infrastructure-team'
+    email_configs:
+      - to: 'infrastructure@company.com'
+        from: 'intelliguard-alerts@company.com'
+        subject: '[INFRA] IntelliGuard-AI Infrastructure Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>🔧 Infrastructure Alert</h2>
+          
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Instance:</strong> {{ .GroupLabels.instance }}</p>
+          
+          {{ range .Alerts }}
+          <p><strong>Description:</strong> {{ .Annotations.description }}</p>
+          {{ end }}
+        send_resolved: true
+
+  # Service Availability
+  - name: 'service-availability'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#service-status'
+        username: 'IntelliGuard-AI-Status'
+        icon_emoji: ':red_circle:'
+        title: 'Service Availability Alert'
+        text: |
+          🔴 **Service Availability Issue**
+          
+          **Service:** {{ .GroupLabels.service }}
+          **Instance:** {{ .GroupLabels.instance }}
+          {{ range .Alerts }}
+          **Status:** {{ .Annotations.summary }}
+          {{ end }}
+        send_resolved: true
+
+  # On-Call Team (After Hours)
+  - name: 'on-call-team'
+    pagerduty_configs:
+      - routing_key: '${PAGERDUTY_INTEGRATION_KEY_ONCALL}'
+        description: 'IntelliGuard-AI After Hours Alert: {{ .GroupLabels.alertname }}'
+        severity: '{{ .GroupLabels.severity }}'
+        source: 'IntelliGuard-AI'
+
+  # Business Hours Team
+  - name: 'business-hours-team'
+    email_configs:
+      - to: 'security-team@company.com'
+        from: 'intelliguard-alerts@company.com'
+        subject: '[BUSINESS HOURS] IntelliGuard-AI Alert: {{ .GroupLabels.alertname }}'
+        send_resolved: true
+
+# Templates for reusable message formatting
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Mute time periods (optional)
+mute_time_intervals:
+  - name: 'maintenance-window'
+    time_intervals:
+      - times:
+          - start_time: '02:00'
+            end_time: '04:00'
+        weekdays: ['sunday']
+        months: ['1:12']
+    
+  - name: 'non-business-hours'
+    time_intervals:
+      - times:
+          - start_time: '18:00'
+            end_time: '09:00'
+        weekdays: ['monday:friday']
