@@ -1,7 +1,7 @@
 # IntelliGuard-AI: Executive Summary
 ## AI-Driven Security Operations Center Implementation
 
-**Prepared for:** Chief Information Officer  
+**Prepared for:** AL NAFI Chief Information Officer  
 **Date:** September 2025  
 **Classification:** Confidential - Executive Review
 
