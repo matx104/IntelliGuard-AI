@@ -1,0 +1,242 @@
+# IntelliGuard-AI Prometheus Configuration
+# File: prometheus.yml
+# Purpose: Monitoring configuration for AI-driven SOC infrastructure
+# Author: AL NAFI AI-Ops Diploma Project
+# Date: September 2025
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'intelliguard-ai'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load alerting rules
+rule_files:
+  - "intelliguard_security_rules.yml"
+  - "intelliguard_performance_rules.yml"
+  - "intelliguard_business_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Wazuh Manager monitoring
+  - job_name: 'wazuh-manager'
+    static_configs:
+      - targets:
+        - 'wazuh-manager-01:55000'
+        - 'wazuh-manager-02:55000'
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    basic_auth:
+      username: 'prometheus'
+      password_file: '/etc/prometheus/wazuh_password'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - source_labels: [instance]
+        regex: '([^:]+):.*'
+        target_label: hostname
+        replacement: '${1}'
+
+  # Wazuh Agent monitoring
+  - job_name: 'wazuh-agents'
+    static_configs:
+      - targets:
+        - 'agent-001:1515'
+        - 'agent-002:1515'
+        - 'agent-003:1515'
+    scrape_interval: 60s
+    metrics_path: /agent/metrics
+
+  # Grafana monitoring
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Elasticsearch monitoring
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets:
+        - 'elasticsearch-01:9200'
+        - 'elasticsearch-02:9200'
+        - 'elasticsearch-03:9200'
+    scrape_interval: 30s
+    metrics_path: /_prometheus/metrics
+
+  # Shuffle SOAR monitoring
+  - job_name: 'shuffle'
+    static_configs:
+      - targets: ['shuffle:3001']
+    scrape_interval: 30s
+    metrics_path: /api/v1/metrics
+    bearer_token_file: '/etc/prometheus/shuffle_token'
+
+  # TheHive monitoring
+  - job_name: 'thehive'
+    static_configs:
+      - targets: ['thehive:9000']
+    scrape_interval: 60s
+    metrics_path: /api/metrics
+    bearer_token_file: '/etc/prometheus/thehive_token'
+
+  # Cortex monitoring
+  - job_name: 'cortex'
+    static_configs:
+      - targets: ['cortex:9001']
+    scrape_interval: 60s
+    metrics_path: /api/metrics
+    bearer_token_file: '/etc/prometheus/cortex_token'
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+        - 'wazuh-manager-01:9100'
+        - 'wazuh-manager-02:9100'
+        - 'elasticsearch-01:9100'
+        - 'elasticsearch-02:9100'
+        - 'elasticsearch-03:9100'
+        - 'grafana:9100'
+        - 'shuffle:9100'
+        - 'thehive:9100'
+        - 'cortex:9100'
+    scrape_interval: 30s
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '([^:]+):.*'
+        target_label: instance
+        replacement: '${1}'
+
+  # Custom IntelliGuard-AI metrics
+  - job_name: 'intelliguard-metrics'
+    static_configs:
+      - targets: ['intelliguard-exporter:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    params:
+      format: ['prometheus']
+
+  # Docker container monitoring
+  - job_name: 'docker'
+    static_configs:
+      - targets:
+        - 'docker-host-01:9323'
+        - 'docker-host-02:9323'
+    scrape_interval: 30s
+
+  # Network device monitoring (SNMP)
+  - job_name: 'snmp-devices'
+    static_configs:
+      - targets:
+        - '10.0.1.1'  # Core Router
+        - '10.0.1.2'  # Core Switch
+        - '10.0.1.3'  # Firewall
+    metrics_path: /snmp
+    params:
+      module: [if_mib]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp-exporter:9116
+
+  # Blackbox monitoring for service availability
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - https://wazuh.company.com
+        - https://grafana.company.com
+        - https://thehive.company.com
+        - https://cortex.company.com
+        - https://shuffle.company.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # SSL certificate monitoring
+  - job_name: 'blackbox-ssl'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+        - wazuh.company.com:443
+        - grafana.company.com:443
+        - thehive.company.com:443
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Database monitoring
+  - job_name: 'mysql-exporter'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+    scrape_interval: 30s
+
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # Custom business metrics
+  - job_name: 'business-metrics'
+    static_configs:
+      - targets: ['business-metrics-exporter:8081']
+    scrape_interval: 60s
+    metrics_path: /business/metrics
+
+# Remote write configuration for long-term storage
+remote_write:
+  - url: "https://prometheus-remote-storage.company.com/api/v1/write"
+    basic_auth:
+      username: 'intelliguard'
+      password_file: '/etc/prometheus/remote_storage_password'
+    queue_config:
+      max_shards: 10
+      max_samples_per_send: 1000
+      batch_send_deadline: 5s
+
+# Storage configuration
+storage:
+  tsdb:
+    retention.time: 30d
+    retention.size: 100GB
+    path: /prometheus/data
+    wal-compression: true
+
+# Tracing configuration
+tracing:
+  endpoint: "jaeger:14268/api/traces"
+  sampling_fraction: 0.1
