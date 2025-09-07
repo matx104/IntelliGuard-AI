@@ -1,0 +1,730 @@
+{
+  "analyzers_config": {
+    "name": "IntelliGuard-AI Cortex Analyzers",
+    "version": "1.0.0",
+    "description": "Custom analyzer configurations for IntelliGuard-AI threat analysis",
+    "author": "AL NAFI AI-Ops Diploma Project",
+    "created_date": "2025-09-07"
+  },
+
+  "analyzer_categories": {
+    "threat_intelligence": {
+      "description": "External threat intelligence lookup services",
+      "analyzers": [
+        {
+          "name": "VirusTotal_GetReport_3_0",
+          "dataTypes": ["file", "hash", "domain", "ip", "url"],
+          "configuration": {
+            "service": "VirusTotal_GetReport_3_0",
+            "baseUrl": "https://www.virustotal.com/vtapi/v2/",
+            "key": "${VIRUSTOTAL_API_KEY}",
+            "auto_extract_artifacts": true,
+            "polling_interval": 60,
+            "max_tlp": 2
+          },
+          "rate_limits": {
+            "requests_per_minute": 4,
+            "requests_per_day": 1000
+          },
+          "timeout": 120,
+          "enabled": true,
+          "priority": "high"
+        },
+        {
+          "name": "ThreatCrowd_1_0",
+          "dataTypes": ["domain", "ip", "email", "hash"],
+          "configuration": {
+            "service": "ThreatCrowd_1_0",
+            "baseUrl": "https://www.threatcrowd.org/searchApi/v2/",
+            "auto_extract_artifacts": true,
+            "max_tlp": 3
+          },
+          "rate_limits": {
+            "requests_per_minute": 1
+          },
+          "timeout": 60,
+          "enabled": true,
+          "priority": "medium"
+        },
+        {
+          "name": "Abuse_Finder_3_0",
+          "dataTypes": ["domain", "ip"],
+          "configuration": {
+            "service": "Abuse_Finder_3_0",
+            "key": "${ABUSEIPDB_API_KEY}",
+            "auto_extract_artifacts": true,
+            "max_tlp": 2
+          },
+          "rate_limits": {
+            "requests_per_day": 1000
+          },
+          "timeout": 30,
+          "enabled": true,
+          "priority": "medium"
+        },
+        {
+          "name": "TalosReputation_1_0",
+          "dataTypes": ["ip", "domain", "url"],
+          "configuration": {
+            "service": "TalosReputation_1_0",
+            "auto_extract_artifacts": true,
+            "max_tlp": 3
+          },
+          "timeout": 30,
+          "enabled": true,
+          "priority": "low"
+        }
+      ]
+    },
+    "geolocation": {
+      "description": "IP geolocation and network information services",
+      "analyzers": [
+        {
+          "name": "MaxMind_GeoIP_3_0",
+          "dataTypes": ["ip"],
+          "configuration": {
+            "service": "MaxMind_GeoIP_3_0",
+            "key": "${MAXMIND_API_KEY}",
+            "auto_extract_artifacts": true,
+            "max_tlp": 2
+          },
+          "timeout": 30,
+          "enabled": true,
+          "priority": "medium"
+        },
+        {
+          "name": "Shodan_Host_1_0",
+          "dataTypes": ["ip"],
+          "configuration": {
+            "service": "Shodan_Host_1_0",
+            "key": "${SHODAN_API_KEY}",
+            "auto_extract_artifacts": true,
+            "max_tlp": 2
+          },
+          "rate_limits": {
+            "requests_per_month": 100
+          },
+          "timeout": 60,
+          "enabled": true,
+          "priority": "low"
+        }
+      ]
+    },
+    "malware_analysis": {
+      "description": "Malware analysis and sandboxing services",
+      "analyzers": [
+        {
+          "name": "Yara_2_0",
+          "dataTypes": ["file"],
+          "configuration": {
+            "service": "Yara_2_0",
+            "rules_path": "/opt/cortex/yara-rules/",
+            "auto_extract_artifacts": true,
+            "max_tlp": 2,
+            "rules_update_interval": "daily"
+          },
+          "timeout": 300,
+          "enabled": true,
+          "priority": "high",
+          "custom_rules": [
+            "apt_rules.yar",
+            "malware_families.yar",
+            "ransomware_rules.yar",
+            "intelliguard_custom.yar"
+          ]
+        },
+        {
+          "name": "CuckooSandbox_1_2",
+          "dataTypes": ["file"],
+          "configuration": {
+            "service": "CuckooSandbox_1_2",
+            "url": "http://cuckoo-sandbox:8090",
+            "api_key": "${CUCKOO_API_KEY}",
+            "auto_extract_artifacts": true,
+            "max_tlp": 1,
+            "timeout": 600
+          },
+          "timeout": 900,
+          "enabled": true,
+          "priority": "high"
+        },
+        {
+          "name": "CAPE_2_0",
+          "dataTypes": ["file"],
+          "configuration": {
+            "service": "CAPE_2_0",
+            "url": "http://cape-sandbox:8000",
+            "api_key": "${CAPE_API_KEY}",
+            "auto_extract_artifacts": true,
+            "max_tlp": 1
+          },
+          "timeout": 900,
+          "enabled": false,
+          "priority": "medium"
+        }
+      ]
+    },
+    "hash_reputation": {
+      "description": "File hash reputation and analysis services",
+      "analyzers": [
+        {
+          "name": "MalwareBazaar_1_0",
+          "dataTypes": ["hash"],
+          "configuration": {
+            "service": "MalwareBazaar_1_0",
+            "baseUrl": "https://mb-api.abuse.ch/api/v1/",
+            "auto_extract_artifacts": true,
+            "max_tlp": 3
+          },
+          "timeout": 60,
+          "enabled": true,
+          "priority": "medium"
+        },
+        {
+          "name": "HybridAnalysis_GetReport_1_0",
+          "dataTypes": ["hash", "file"],
+          "configuration": {
+            "service": "HybridAnalysis_GetReport_1_0",
+            "key": "${HYBRID_ANALYSIS_API_KEY}",
+            "auto_extract_artifacts": true,
+            "max_tlp": 2
+          },
+          "rate_limits": {
+            "requests_per_month": 200
+          },
+          "timeout": 120,
+          "enabled": true,
+          "priority": "medium"
+        }
+      ]
+    },
+    "domain_analysis": {
+      "description": "Domain and URL analysis services",
+      "analyzers": [
+        {
+          "name": "DomainTools_2_0",
+          "dataTypes": ["domain"],
+          "configuration": {
+            "service": "DomainTools_2_0",
+            "username": "${DOMAINTOOLS_USERNAME}",
+            "key": "${DOMAINTOOLS_API_KEY}",
+            "auto_extract_artifacts": true,
+            "max_tlp": 2
+          },
+          "rate_limits": {
+            "requests_per_day": 100
+          },
+          "timeout": 60,
+          "enabled": false,
+          "priority": "low"
+        },
+        {
+          "name": "URLVoid_1_0",
+          "dataTypes": ["url", "domain"],
+          "configuration": {
+            "service": "URLVoid_1_0",
+            "key": "${URLVOID_API_KEY}",
+            "auto_extract_artifacts": true,
+            "max_tlp": 3
+          },
+          "timeout": 30,
+          "enabled": true,
+          "priority": "medium"
+        }
+      ]
+    },
+    "custom_intelliguard": {
+      "description": "Custom analyzers specific to IntelliGuard-AI",
+      "analyzers": [
+        {
+          "name": "IntelliGuard_IOC_Correlator",
+          "dataTypes": ["ip", "domain", "hash", "url"],
+          "configuration": {
+            "service": "IntelliGuard_IOC_Correlator",
+            "internal_database": "http://intelliguard-ti:5000",
+            "correlation_threshold": 0.75,
+            "auto_extract_artifacts": true,
+            "max_tlp": 1
+          },
+          "timeout": 60,
+          "enabled": true,
+          "priority": "high",
+          "description": "Correlates observables with internal threat intelligence database"
+        },
+        {
+          "name": "IntelliGuard_Behavioral_Analyzer",
+          "dataTypes": ["file"],
+          "configuration": {
+            "service": "IntelliGuard_Behavioral_Analyzer",
+            "ml_endpoint": "http://intelliguard-ml:8080/analyze",
+            "behavior_threshold": 0.8,
+            "auto_extract_artifacts": true,
+            "max_tlp": 1
+          },
+          "timeout": 300,
+          "enabled": true,
+          "priority": "high",
+          "description": "ML-based behavioral analysis for unknown threats"
+        },
+        {
+          "name": "IntelliGuard_MITRE_Mapper",
+          "dataTypes": ["other"],
+          "configuration": {
+            "service": "IntelliGuard_MITRE_Mapper",
+            "mitre_db": "http://intelliguard-mitre:3000",
+            "auto_extract_artifacts": true,
+            "max_tlp": 2
+          },
+          "timeout": 30,
+          "enabled": true,
+          "priority": "medium",
+          "description": "Maps observables and behaviors to MITRE ATT&CK techniques"
+        }
+      ]
+    }
+  },
+
+  "responder_categories": {
+    "threat_hunting": {
+      "description": "Automated threat hunting and enrichment responders",
+      "responders": [
+        {
+          "name": "IntelliGuard_ThreatHunter",
+          "dataTypes": ["ip", "domain", "hash"],
+          "configuration": {
+            "service": "IntelliGuard_ThreatHunter",
+            "wazuh_api": "https://wazuh.company.com:55000",
+            "api_key": "${WAZUH_API_KEY}",
+            "hunt_timeframe": "7d",
+            "auto_create_cases": true,
+            "max_tlp": 2
+          },
+          "timeout": 180,
+          "enabled": true,
+          "priority": "high",
+          "description": "Hunts for additional indicators across enterprise"
+        },
+        {
+          "name": "IntelliGuard_IOC_Blocker",
+          "dataTypes": ["ip", "domain", "url"],
+          "configuration": {
+            "service": "IntelliGuard_IOC_Blocker",
+            "firewall_api": "https://firewall.company.com/api",
+            "dns_server": "https://dns.company.com/api",
+            "api_key": "${NETWORK_API_KEY}",
+            "auto_block": false,
+            "max_tlp": 1
+          },
+          "timeout": 60,
+          "enabled": true,
+          "priority": "high",
+          "description": "Blocks malicious indicators at network level"
+        }
+      ]
+    },
+    "notification": {
+      "description": "Alert and notification responders",
+      "responders": [
+        {
+          "name": "Slack_Responder",
+          "dataTypes": ["ip", "domain", "hash", "url", "file"],
+          "configuration": {
+            "service": "Slack_Responder",
+            "webhook_url": "${SLACK_WEBHOOK_URL}",
+            "channel": "#security-alerts",
+            "template": "intelliguard_alert_template",
+            "max_tlp": 2
+          },
+          "timeout": 30,
+          "enabled": true,
+          "priority": "medium"
+        },
+        {
+          "name": "Email_Responder",
+          "dataTypes": ["ip", "domain", "hash", "url", "file"],
+          "configuration": {
+            "service": "Email_Responder",
+            "smtp_server": "smtp.company.com",
+            "smtp_port": 587,
+            "username": "${SMTP_USERNAME}",
+            "password": "${SMTP_PASSWORD}",
+            "recipients": ["security-team@company.com"],
+            "template": "intelliguard_email_template",
+            "max_tlp": 1
+          },
+          "timeout": 60,
+          "enabled": true,
+          "priority": "low"
+        }
+      ]
+    },
+    "containment": {
+      "description": "Automated containment and response actions",
+      "responders": [
+        {
+          "name": "IntelliGuard_Host_Isolator",
+          "dataTypes": ["ip"],
+          "configuration": {
+            "service": "IntelliGuard_Host_Isolator",
+            "isolation_api": "https://edr.company.com/api",
+            "api_key": "${EDR_API_KEY}",
+            "isolation_type": "quarantine",
+            "auto_isolate": false,
+            "max_tlp": 1
+          },
+          "timeout": 120,
+          "enabled": true,
+          "priority": "critical",
+          "description": "Isolates compromised hosts from network"
+        },
+        {
+          "name": "IntelliGuard_Account_Disabler",
+          "dataTypes": ["user-account"],
+          "configuration": {
+            "service": "IntelliGuard_Account_Disabler",
+            "ad_server": "ldap://dc.company.local",
+            "service_account": "${AD_SERVICE_ACCOUNT}",
+            "password": "${AD_SERVICE_PASSWORD}",
+            "auto_disable": false,
+            "backup_groups": true,
+            "max_tlp": 1
+          },
+          "timeout": 60,
+          "enabled": true,
+          "priority": "high",
+          "description": "Disables compromised user accounts"
+        }
+      ]
+    }
+  },
+
+  "analyzer_workflows": {
+    "ip_analysis_workflow": {
+      "description": "Comprehensive IP address analysis workflow",
+      "trigger_conditions": ["dataType == 'ip'"],
+      "analyzers": [
+        {
+          "name": "Abuse_Finder_3_0",
+          "order": 1,
+          "required": true
+        },
+        {
+          "name": "MaxMind_GeoIP_3_0",
+          "order": 2,
+          "required": true
+        },
+        {
+          "name": "TalosReputation_1_0",
+          "order": 3,
+          "required": false
+        },
+        {
+          "name": "IntelliGuard_IOC_Correlator",
+          "order": 4,
+          "required": true
+        }
+      ],
+      "responders": [
+        {
+          "name": "IntelliGuard_ThreatHunter",
+          "condition": "reputation_score > 7",
+          "auto_execute": true
+        },
+        {
+          "name": "Slack_Responder",
+          "condition": "reputation_score > 8",
+          "auto_execute": true
+        }
+      ]
+    },
+    "hash_analysis_workflow": {
+      "description": "Comprehensive file hash analysis workflow",
+      "trigger_conditions": ["dataType == 'hash'"],
+      "analyzers": [
+        {
+          "name": "VirusTotal_GetReport_3_0",
+          "order": 1,
+          "required": true
+        },
+        {
+          "name": "MalwareBazaar_1_0",
+          "order": 2,
+          "required": true
+        },
+        {
+          "name": "HybridAnalysis_GetReport_1_0",
+          "order": 3,
+          "required": false
+        },
+        {
+          "name": "IntelliGuard_IOC_Correlator",
+          "order": 4,
+          "required": true
+        }
+      ],
+      "responders": [
+        {
+          "name": "IntelliGuard_IOC_Blocker",
+          "condition": "malware_detected == true",
+          "auto_execute": false
+        }
+      ]
+    },
+    "domain_analysis_workflow": {
+      "description": "Comprehensive domain analysis workflow",
+      "trigger_conditions": ["dataType == 'domain'"],
+      "analyzers": [
+        {
+          "name": "VirusTotal_GetReport_3_0",
+          "order": 1,
+          "required": true
+        },
+        {
+          "name": "ThreatCrowd_1_0",
+          "order": 2,
+          "required": true
+        },
+        {
+          "name": "URLVoid_1_0",
+          "order": 3,
+          "required": false
+        },
+        {
+          "name": "IntelliGuard_IOC_Correlator",
+          "order": 4,
+          "required": true
+        }
+      ]
+    },
+    "file_analysis_workflow": {
+      "description": "Comprehensive file analysis workflow",
+      "trigger_conditions": ["dataType == 'file'"],
+      "analyzers": [
+        {
+          "name": "Yara_2_0",
+          "order": 1,
+          "required": true
+        },
+        {
+          "name": "VirusTotal_GetReport_3_0",
+          "order": 2,
+          "required": true
+        },
+        {
+          "name": "IntelliGuard_Behavioral_Analyzer",
+          "order": 3,
+          "required": true
+        },
+        {
+          "name": "CuckooSandbox_1_2",
+          "order": 4,
+          "required": false,
+          "condition": "file_size < 50MB && suspicious_score > 5"
+        }
+      ],
+      "responders": [
+        {
+          "name": "IntelliGuard_IOC_Blocker",
+          "condition": "malware_confidence > 0.8",
+          "auto_execute": false
+        },
+        {
+          "name": "Slack_Responder",
+          "condition": "malware_confidence > 0.9",
+          "auto_execute": true
+        }
+      ]
+    }
+  },
+
+  "custom_yara_rules": {
+    "intelliguard_custom.yar": {
+      "description": "Custom YARA rules for IntelliGuard-AI specific threats",
+      "rules": [
+        {
+          "name": "IntelliGuard_Ransomware_Generic",
+          "description": "Generic ransomware detection patterns",
+          "rule": "rule IntelliGuard_Ransomware_Generic {\n    meta:\n        description = \"Generic ransomware indicators\"\n        author = \"IntelliGuard-AI\"\n        date = \"2025-09-07\"\n        threat_level = \"high\"\n    strings:\n        $ransom1 = \"your files have been encrypted\" nocase\n        $ransom2 = \"pay bitcoin\" nocase\n        $ransom3 = \"decryption key\" nocase\n        $crypto1 = { 00 43 72 79 70 74 6F }\n        $crypto2 = \"CryptAcquireContext\" ascii\n    condition:\n        any of ($ransom*) or any of ($crypto*)\n}"
+        },
+        {
+          "name": "IntelliGuard_APT_Indicators",
+          "description": "Advanced Persistent Threat indicators",
+          "rule": "rule IntelliGuard_APT_Indicators {\n    meta:\n        description = \"APT behavioral indicators\"\n        author = \"IntelliGuard-AI\"\n        date = \"2025-09-07\"\n        threat_level = \"critical\"\n    strings:\n        $apt1 = \"powershell -windowstyle hidden\" nocase\n        $apt2 = \"invoke-expression\" nocase\n        $apt3 = \"downloadstring\" nocase\n        $apt4 = /\\$[a-zA-Z]{1,10}=[System.Convert]::FromBase64String/\n    condition:\n        2 of them\n}"
+        },
+        {
+          "name": "IntelliGuard_Living_Off_Land",
+          "description": "Living off the land techniques",
+          "rule": "rule IntelliGuard_Living_Off_Land {\n    meta:\n        description = \"Living off the land binary abuse\"\n        author = \"IntelliGuard-AI\"\n        date = \"2025-09-07\"\n        threat_level = \"medium\"\n    strings:\n        $lol1 = \"certutil -urlcache\" nocase\n        $lol2 = \"regsvr32 /s /u /i:\" nocase\n        $lol3 = \"rundll32 javascript:\" nocase\n        $lol4 = \"mshta javascript:\" nocase\n        $lol5 = \"bitsadmin /transfer\" nocase\n    condition:\n        any of them\n}"
+        }
+      ]
+    }
+  },
+
+  "threat_intelligence_feeds": {
+    "internal_feeds": [
+      {
+        "name": "IntelliGuard_Internal_IOCs",
+        "url": "http://intelliguard-ti:5000/api/iocs",
+        "format": "json",
+        "update_frequency": "hourly",
+        "authentication": {
+          "type": "api_key",
+          "key": "${INTERNAL_TI_API_KEY}"
+        }
+      }
+    ],
+    "external_feeds": [
+      {
+        "name": "EmergingThreats_IOCs",
+        "url": "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt",
+        "format": "text",
+        "update_frequency": "daily",
+        "parser": "plain_text_ip_list"
+      },
+      {
+        "name": "AlienVault_OTX",
+        "url": "https://otx.alienvault.com/api/v1/pulses/subscribed",
+        "format": "json",
+        "update_frequency": "hourly",
+        "authentication": {
+          "type": "api_key",
+          "key": "${OTX_API_KEY}"
+        }
+      },
+      {
+        "name": "MalwareDomainList",
+        "url": "https://www.malwaredomainlist.com/hostslist/hosts.txt",
+        "format": "text",
+        "update_frequency": "daily",
+        "parser": "hosts_file"
+      }
+    ]
+  },
+
+  "performance_optimization": {
+    "caching": {
+      "enabled": true,
+      "cache_duration": "24h",
+      "cache_size_limit": "1GB",
+      "cache_cleanup_interval": "1h"
+    },
+    "rate_limiting": {
+      "global_rate_limit": "100/minute",
+      "per_analyzer_limits": true,
+      "backoff_strategy": "exponential"
+    },
+    "resource_limits": {
+      "max_concurrent_jobs": 10,
+      "job_timeout": 300,
+      "memory_limit_per_job": "512MB"
+    }
+  },
+
+  "security_configuration": {
+    "tlp_handling": {
+      "strict_mode": true,
+      "default_tlp": 2,
+      "tlp_escalation_rules": [
+        {
+          "condition": "contains_pii",
+          "action": "set_tlp_red"
+        },
+        {
+          "condition": "internal_source",
+          "action": "set_tlp_amber"
+        }
+      ]
+    },
+    "data_sanitization": {
+      "remove_personal_data": true,
+      "anonymize_internal_ips": true,
+      "sanitize_file_paths": true
+    },
+    "audit_logging": {
+      "log_all_requests": true,
+      "log_api_calls": true,
+      "log_user_actions": true,
+      "retention_period": "1 year"
+    }
+  },
+
+  "integration_settings": {
+    "thehive_integration": {
+      "auto_import_observables": true,
+      "auto_run_analyzers": true,
+      "result_import_settings": {
+        "import_artifacts": true,
+        "import_tags": true,
+        "import_taxonomies": true
+      }
+    },
+    "misp_integration": {
+      "auto_publish_iocs": false,
+      "sharing_group": "intelliguard-internal",
+      "event_distribution": "organization",
+      "attribute_categories": [
+        "Network activity",
+        "Payload delivery",
+        "Artifacts dropped"
+      ]
+    },
+    "shuffle_integration": {
+      "webhook_url": "http://shuffle:3001/api/v1/hooks/cortex",
+      "auto_trigger_workflows": true,
+      "trigger_conditions": [
+        {
+          "analyzer": "any",
+          "condition": "reputation_score > 8",
+          "workflow": "high_severity_response"
+        },
+        {
+          "analyzer": "VirusTotal_GetReport_3_0",
+          "condition": "malware_detected == true",
+          "workflow": "malware_response"
+        }
+      ]
+    }
+  },
+
+  "reporting_templates": {
+    "analysis_report": {
+      "template_file": "intelliguard_analysis_report.html",
+      "sections": [
+        "executive_summary",
+        "technical_analysis",
+        "ioc_summary",
+        "recommendations",
+        "detailed_results"
+      ],
+      "auto_generate": true
+    },
+    "threat_intelligence_report": {
+      "template_file": "intelliguard_ti_report.html",
+      "sections": [
+        "threat_overview",
+        "attribution_analysis",
+        "technical_indicators",
+        "defensive_recommendations"
+      ],
+      "auto_generate": false
+    }
+  },
+
+  "maintenance_tasks": {
+    "daily_tasks": [
+      "update_threat_intelligence_feeds",
+      "cleanup_old_analysis_results",
+      "verify_analyzer_connectivity"
+    ],
+    "weekly_tasks": [
+      "update_yara_rules",
+      "performance_optimization_review",
+      "security_audit_check"
+    ],
+    "monthly_tasks": [
+      "analyzer_effectiveness_review",
+      "cost_analysis_report",
+      "configuration_backup"
+    ]
+  }
+}
