@@ -1,7 +1,7 @@
 # IntelliGuard-AI: ROI Analysis & Financial Justification
 ## Comprehensive Cost-Benefit Analysis for AI-Driven SOC Implementation
 
-**Prepared for:** Chief Information Officer & CFO  
+**Prepared for:** AL NAFI Chief Information Officer & CFO  
 **Date:** September 2025  
 **Analysis Period:** 3 Years  
 **Classification:** Confidential - Financial Analysis
