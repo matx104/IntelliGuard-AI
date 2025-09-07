@@ -1,0 +1,5 @@
+cortexutils>=2.0.0
+requests>=2.25.0
+ldap3>=2.9.0
+python-ldap>=3.3.0
+pymisp>=2.4.0
