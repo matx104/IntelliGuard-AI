@@ -1,0 +1,549 @@
+<!--
+IntelliGuard-AI Custom Threat Detection Rules
+File: intelliguard_threat_rules.xml
+Purpose: Advanced threat detection rules for AI-driven SOC
+Author: AL NAFI AI-Ops Diploma Project
+Date: September 2025
+
+Rule ID Ranges:
+- 100001-100050: Advanced Persistent Threats (APT)
+- 100051-100100: Ransomware Detection
+- 100101-100150: Insider Threats
+- 100151-100200: Zero-Day Exploits
+- 100201-100250: Lateral Movement
+- 100251-100300: Data Exfiltration
+- 100301-100350: Cryptomining
+- 100351-100400: Supply Chain Attacks
+- 100401-100450: Cloud Security
+- 100451-100500: IoT/OT Security
+-->
+
+<group name="intelliguard_threats,">
+
+  <!-- ===============================
+       ADVANCED PERSISTENT THREATS (APT)
+       =============================== -->
+  
+  <!-- APT: Suspicious PowerShell Activity -->
+  <rule id="100001" level="10">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)powershell\.exe</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(downloadstring|invoke-expression|iex|downloadfile|-encodedcommand|-windowstyle hidden|-noprofile|-executionpolicy bypass)</field>
+    <description>APT: Suspicious PowerShell execution detected - Possible fileless malware</description>
+    <mitre>
+      <id>T1059.001</id>
+      <id>T1140</id>
+    </mitre>
+    <group>apt,powershell,fileless_malware</group>
+  </rule>
+
+  <!-- APT: Living off the Land Binaries -->
+  <rule id="100002" level="8">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)(certutil\.exe|regsvr32\.exe|rundll32\.exe|mshta\.exe|bitsadmin\.exe)</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(urlcache|-split|-decode|javascript:|vbscript:|/transfer|/download)</field>
+    <description>APT: Living off the Land binary abuse detected</description>
+    <mitre>
+      <id>T1218</id>
+      <id>T1105</id>
+    </mitre>
+    <group>apt,lolbas,defense_evasion</group>
+  </rule>
+
+  <!-- APT: WMI Persistence -->
+  <rule id="100003" level="9">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)wmic\.exe</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(process call create|/format:|shadowcopy|create.*call.*create)</field>
+    <description>APT: Suspicious WMI activity - Possible persistence mechanism</description>
+    <mitre>
+      <id>T1047</id>
+      <id>T1546.003</id>
+    </mitre>
+    <group>apt,wmi,persistence</group>
+  </rule>
+
+  <!-- APT: Advanced Evasion Techniques -->
+  <rule id="100004" level="10">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(hollowing|injection|unhook|bypass.*amsi|bypass.*etw)</field>
+    <description>APT: Advanced evasion technique detected</description>
+    <mitre>
+      <id>T1055</id>
+      <id>T1562.001</id>
+    </mitre>
+    <group>apt,evasion,injection</group>
+  </rule>
+
+  <!-- APT: Credential Dumping -->
+  <rule id="100005" level="12">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(mimikatz|sekurlsa|lsadump|dcsync|ntds\.dit|sam\.hive)</field>
+    <description>APT: Credential dumping activity detected - CRITICAL</description>
+    <mitre>
+      <id>T1003</id>
+      <id>T1003.001</id>
+    </mitre>
+    <group>apt,credential_access,critical</group>
+  </rule>
+
+  <!-- ===============================
+       RANSOMWARE DETECTION
+       =============================== -->
+
+  <!-- Ransomware: Mass File Encryption -->
+  <rule id="100051" level="12">
+    <if_sid>550</if_sid>
+    <field name="file" type="pcre2">\.(?i)(encrypt|locked|crypto|crypt|encrypted|[a-f0-9]{8}|\.lock)$</field>
+    <frequency>20</frequency>
+    <timeframe>60</timeframe>
+    <description>RANSOMWARE: Mass file encryption detected - CRITICAL ALERT</description>
+    <mitre>
+      <id>T1486</id>
+    </mitre>
+    <group>ransomware,encryption,critical</group>
+  </rule>
+
+  <!-- Ransomware: Ransom Note Creation -->
+  <rule id="100052" level="10">
+    <if_sid>554</if_sid>
+    <field name="file" type="pcre2">(?i)(readme|how.*decrypt|ransom|payment|bitcoin|recover.*files).*\.(txt|html|rtf)$</field>
+    <description>RANSOMWARE: Ransom note detected</description>
+    <mitre>
+      <id>T1486</id>
+    </mitre>
+    <group>ransomware,ransom_note</group>
+  </rule>
+
+  <!-- Ransomware: Shadow Copy Deletion -->
+  <rule id="100053" level="11">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(vssadmin.*delete.*shadows|wmic.*shadowcopy.*delete|bcdedit.*recoveryenabled.*no)</field>
+    <description>RANSOMWARE: Shadow copy deletion - Backup destruction attempt</description>
+    <mitre>
+      <id>T1490</id>
+    </mitre>
+    <group>ransomware,backup_destruction</group>
+  </rule>
+
+  <!-- Ransomware: Process Termination -->
+  <rule id="100054" level="9">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)taskkill.*(sql|database|backup|antivirus|security)</field>
+    <frequency>5</frequency>
+    <timeframe>30</timeframe>
+    <description>RANSOMWARE: Multiple critical process termination attempts</description>
+    <mitre>
+      <id>T1489</id>
+    </mitre>
+    <group>ransomware,process_termination</group>
+  </rule>
+
+  <!-- ===============================
+       INSIDER THREATS
+       =============================== -->
+
+  <!-- Insider: Unusual Data Access -->
+  <rule id="100101" level="7">
+    <if_sid>18144</if_sid>
+    <field name="user" type="pcre2">(?!system|service|admin)</field>
+    <frequency>50</frequency>
+    <timeframe>300</timeframe>
+    <description>INSIDER: Unusual high-volume data access by user</description>
+    <mitre>
+      <id>T1005</id>
+    </mitre>
+    <group>insider_threat,data_access</group>
+  </rule>
+
+  <!-- Insider: Off-hours Access -->
+  <rule id="100102" level="6">
+    <if_sid>4624,4625</if_sid>
+    <time>22:00-06:00</time>
+    <field name="user" type="pcre2">(?!system|service|backup)</field>
+    <description>INSIDER: Off-hours system access detected</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>insider_threat,off_hours</group>
+  </rule>
+
+  <!-- Insider: USB Device Usage -->
+  <rule id="100103" level="8">
+    <if_sid>60103</if_sid>
+    <field name="win.system.eventID">6416</field>
+    <field name="win.eventdata.className">USB</field>
+    <time>!09:00-17:00</time>
+    <description>INSIDER: USB device connected during non-business hours</description>
+    <mitre>
+      <id>T1052.001</id>
+    </mitre>
+    <group>insider_threat,usb,data_exfiltration</group>
+  </rule>
+
+  <!-- Insider: Privilege Escalation Attempt -->
+  <rule id="100104" level="9">
+    <if_sid>4672</if_sid>
+    <field name="user" type="pcre2">(?!administrator|system|service)</field>
+    <frequency>3</frequency>
+    <timeframe>600</timeframe>
+    <description>INSIDER: Multiple privilege escalation attempts by standard user</description>
+    <mitre>
+      <id>T1078.002</id>
+    </mitre>
+    <group>insider_threat,privilege_escalation</group>
+  </rule>
+
+  <!-- ===============================
+       LATERAL MOVEMENT
+       =============================== -->
+
+  <!-- Lateral Movement: PSExec Activity -->
+  <rule id="100201" level="8">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)psexec</field>
+    <description>LATERAL MOVEMENT: PSExec remote execution detected</description>
+    <mitre>
+      <id>T1570</id>
+      <id>T1021.002</id>
+    </mitre>
+    <group>lateral_movement,psexec</group>
+  </rule>
+
+  <!-- Lateral Movement: RDP Brute Force -->
+  <rule id="100202" level="10">
+    <if_sid>4625</if_sid>
+    <field name="win.system.logonType">10</field>
+    <frequency>10</frequency>
+    <timeframe>300</timeframe>
+    <description>LATERAL MOVEMENT: RDP brute force attack detected</description>
+    <mitre>
+      <id>T1110</id>
+      <id>T1021.001</id>
+    </mitre>
+    <group>lateral_movement,rdp,brute_force</group>
+  </rule>
+
+  <!-- Lateral Movement: Network Scanning -->
+  <rule id="100203" level="7">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(nmap|masscan|portscan|ping.*-t|net view)</field>
+    <description>LATERAL MOVEMENT: Network scanning activity detected</description>
+    <mitre>
+      <id>T1018</id>
+      <id>T1046</id>
+    </mitre>
+    <group>lateral_movement,network_scanning</group>
+  </rule>
+
+  <!-- ===============================
+       DATA EXFILTRATION
+       =============================== -->
+
+  <!-- Data Exfiltration: Large Upload -->
+  <rule id="100251" level="8">
+    <if_sid>31102</if_sid>
+    <field name="size" type="pcre2">[0-9]{9,}</field>
+    <description>DATA EXFILTRATION: Large file upload detected (>100MB)</description>
+    <mitre>
+      <id>T1041</id>
+    </mitre>
+    <group>data_exfiltration,upload</group>
+  </rule>
+
+  <!-- Data Exfiltration: Cloud Storage -->
+  <rule id="100252" level="7">
+    <if_sid>31100</if_sid>
+    <field name="url" type="pcre2">(?i)(dropbox|google.*drive|onedrive|box\.com|mega\.nz)</field>
+    <description>DATA EXFILTRATION: Access to cloud storage service</description>
+    <mitre>
+      <id>T1567.002</id>
+    </mitre>
+    <group>data_exfiltration,cloud_storage</group>
+  </rule>
+
+  <!-- Data Exfiltration: Email with Large Attachment -->
+  <rule id="100253" level="8">
+    <if_sid>11551</if_sid>
+    <field name="size" type="pcre2">[0-9]{7,}</field>
+    <description>DATA EXFILTRATION: Large email attachment sent (>10MB)</description>
+    <mitre>
+      <id>T1567.002</id>
+    </mitre>
+    <group>data_exfiltration,email</group>
+  </rule>
+
+  <!-- ===============================
+       CRYPTOMINING DETECTION
+       =============================== -->
+
+  <!-- Cryptomining: Known Miners -->
+  <rule id="100301" level="9">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)(xmrig|cpuminer|cgminer|bfgminer|sgminer|nicehash)</field>
+    <description>CRYPTOMINING: Known cryptocurrency miner detected</description>
+    <mitre>
+      <id>T1496</id>
+    </mitre>
+    <group>cryptomining,resource_hijacking</group>
+  </rule>
+
+  <!-- Cryptomining: High CPU Usage -->
+  <rule id="100302" level="7">
+    <if_sid>530</if_sid>
+    <field name="cpu_usage" type="pcre2">9[0-9]|100</field>
+    <frequency>3</frequency>
+    <timeframe>300</timeframe>
+    <description>CRYPTOMINING: Sustained high CPU usage detected</description>
+    <mitre>
+      <id>T1496</id>
+    </mitre>
+    <group>cryptomining,performance</group>
+  </rule>
+
+  <!-- ===============================
+       CLOUD SECURITY THREATS
+       =============================== -->
+
+  <!-- Cloud: Unusual API Access -->
+  <rule id="100401" level="8">
+    <if_sid>80200</if_sid>
+    <field name="aws.sourceIPAddress" type="pcre2">^(?!10\.|172\.1[6-9]\.|172\.2[0-9]\.|172\.3[0-1]\.|192\.168\.)</field>
+    <field name="aws.eventName" type="pcre2">(?i)(createuser|attachuserpolicy|putuserpolicy)</field>
+    <description>CLOUD SECURITY: Privilege escalation from external IP</description>
+    <mitre>
+      <id>T1078.004</id>
+    </mitre>
+    <group>cloud_security,aws,privilege_escalation</group>
+  </rule>
+
+  <!-- Cloud: Resource Deletion -->
+  <rule id="100402" level="10">
+    <if_sid>80200</if_sid>
+    <field name="aws.eventName" type="pcre2">(?i)(delete|terminate|destroy)</field>
+    <frequency>5</frequency>
+    <timeframe>300</timeframe>
+    <description>CLOUD SECURITY: Multiple resource deletion events</description>
+    <mitre>
+      <id>T1485</id>
+    </mitre>
+    <group>cloud_security,aws,data_destruction</group>
+  </rule>
+
+  <!-- ===============================
+       MACHINE LEARNING CORRELATION RULES
+       =============================== -->
+
+  <!-- ML: Anomalous User Behavior -->
+  <rule id="100501" level="7">
+    <if_sid>4624</if_sid>
+    <field name="ml_score" type="pcre2">[8-9]\.[0-9]|10\.0</field>
+    <description>ML DETECTION: Anomalous user behavior detected (ML Score: High)</description>
+    <group>machine_learning,behavioral_analysis</group>
+  </rule>
+
+  <!-- ML: Network Traffic Anomaly -->
+  <rule id="100502" level="8">
+    <if_sid>31100</if_sid>
+    <field name="ml_anomaly" type="pcre2">true</field>
+    <field name="confidence" type="pcre2">[8-9][0-9]|100</field>
+    <description>ML DETECTION: Network traffic anomaly detected (High Confidence)</description>
+    <group>machine_learning,network_anomaly</group>
+  </rule>
+
+  <!-- ===============================
+       CORRELATION RULES
+       =============================== -->
+
+  <!-- Correlation: APT Campaign Indicators -->
+  <rule id="100601" level="12">
+    <if_matched_sid>100001</if_matched_sid>
+    <if_matched_sid>100201</if_matched_sid>
+    <if_matched_sid>100251</if_matched_sid>
+    <same_source_ip />
+    <timeframe>3600</timeframe>
+    <description>CORRELATION: APT campaign detected - PowerShell + Lateral Movement + Data Exfiltration</description>
+    <mitre>
+      <id>T1059.001</id>
+      <id>T1570</id>
+      <id>T1041</id>
+    </mitre>
+    <group>correlation,apt_campaign,critical</group>
+  </rule>
+
+  <!-- Correlation: Ransomware Deployment -->
+  <rule id="100602" level="15">
+    <if_matched_sid>100053</if_matched_sid>
+    <if_matched_sid>100051</if_matched_sid>
+    <same_source_ip />
+    <timeframe>1800</timeframe>
+    <description>CORRELATION: Active ransomware deployment - Shadow deletion + Mass encryption</description>
+    <mitre>
+      <id>T1490</id>
+      <id>T1486</id>
+    </mitre>
+    <group>correlation,ransomware_active,emergency</group>
+  </rule>
+
+  <!-- Correlation: Insider Threat Escalation -->
+  <rule id="100603" level="11">
+    <if_matched_sid>100102</if_matched_sid>
+    <if_matched_sid>100103</if_matched_sid>
+    <if_matched_sid>100101</if_matched_sid>
+    <same_user />
+    <timeframe>7200</timeframe>
+    <description>CORRELATION: Insider threat escalation - Off-hours access + USB + Data access</description>
+    <mitre>
+      <id>T1078</id>
+      <id>T1052.001</id>
+      <id>T1005</id>
+    </mitre>
+    <group>correlation,insider_threat,high_priority</group>
+  </rule>
+
+  <!-- ===============================
+       RESPONSE AUTOMATION TRIGGERS
+       =============================== -->
+
+  <!-- Auto-Response: Block Malicious IP -->
+  <rule id="100701" level="10">
+    <if_matched_sid>100202,100251</if_matched_sid>
+    <description>AUTO-RESPONSE: Triggering IP block for malicious activity</description>
+    <group>auto_response,ip_block</group>
+  </rule>
+
+  <!-- Auto-Response: Disable Compromised Account -->
+  <rule id="100702" level="12">
+    <if_matched_sid>100005,100603</if_matched_sid>
+    <description>AUTO-RESPONSE: Triggering account disable for compromise indicators</description>
+    <group>auto_response,account_disable</group>
+  </rule>
+
+  <!-- Auto-Response: Isolate Infected Host -->
+  <rule id="100703" level="15">
+    <if_matched_sid>100051,100602</if_matched_sid>
+    <description>AUTO-RESPONSE: Triggering host isolation for ransomware activity</description>
+    <group>auto_response,host_isolation</group>
+  </rule>
+
+  <!-- ===============================
+       THREAT INTELLIGENCE INTEGRATION
+       =============================== -->
+
+  <!-- TI: Known Bad IP -->
+  <rule id="100801" level="9">
+    <if_sid>31100</if_sid>
+    <list field="srcip" lookup="address_match_key">etc/lists/threat_intel_ips</list>
+    <description>THREAT INTEL: Communication with known malicious IP address</description>
+    <group>threat_intelligence,malicious_ip</group>
+  </rule>
+
+  <!-- TI: Known Bad Domain -->
+  <rule id="100802" level="9">
+    <if_sid>31100</if_sid>
+    <list field="url" lookup="match_key_value">etc/lists/threat_intel_domains</list>
+    <description>THREAT INTEL: DNS query to known malicious domain</description>
+    <group>threat_intelligence,malicious_domain</group>
+  </rule>
+
+  <!-- TI: Known Bad Hash -->
+  <rule id="100803" level="10">
+    <if_sid>60103</if_sid>
+    <list field="win.eventdata.hashes" lookup="match_key_value">etc/lists/threat_intel_hashes</list>
+    <description>THREAT INTEL: Execution of known malicious file hash</description>
+    <group>threat_intelligence,malicious_hash</group>
+  </rule>
+
+  <!-- ===============================
+       COMPLIANCE AND AUDIT RULES
+       =============================== -->
+
+  <!-- Compliance: PCI DSS - Card Data Access -->
+  <rule id="100901" level="8">
+    <if_sid>18144</if_sid>
+    <field name="file" type="pcre2">(?i)(card|payment|credit|debit|pan|cvv)</field>
+    <description>COMPLIANCE: Access to potential card data file (PCI DSS)</description>
+    <group>compliance,pci_dss,card_data</group>
+  </rule>
+
+  <!-- Compliance: GDPR - Personal Data Access -->
+  <rule id="100902" level="7">
+    <if_sid>18144</if_sid>
+    <field name="file" type="pcre2">(?i)(personal|gdpr|pii|customer|email|phone)</field>
+    <description>COMPLIANCE: Access to potential personal data file (GDPR)</description>
+    <group>compliance,gdpr,personal_data</group>
+  </rule>
+
+  <!-- Compliance: SOX - Financial Data Access -->
+  <rule id="100903" level="8">
+    <if_sid>18144</if_sid>
+    <field name="file" type="pcre2">(?i)(financial|accounting|revenue|audit|sox)</field>
+    <description>COMPLIANCE: Access to financial data file (SOX)</description>
+    <group>compliance,sox,financial_data</group>
+  </rule>
+
+  <!-- ===============================
+       HONEYPOT AND DECEPTION
+       =============================== -->
+
+  <!-- Honeypot: Interaction Detected -->
+  <rule id="101001" level="12">
+    <if_sid>31100</if_sid>
+    <field name="dstip" type="pcre2">10\.0\.99\.[0-9]{1,3}</field>
+    <description>HONEYPOT: Interaction with honeypot system detected</description>
+    <group>honeypot,deception,critical</group>
+  </rule>
+
+  <!-- Deception: Canary File Access -->
+  <rule id="101002" level="11">
+    <if_sid>554</if_sid>
+    <field name="file" type="pcre2">(?i)canary.*\.(doc|pdf|txt|xls)</field>
+    <description>DECEPTION: Canary file accessed - Possible breach</description>
+    <group>deception,canary_file,breach_indicator</group>
+  </rule>
+
+  <!-- ===============================
+       ZERO-DAY AND UNKNOWN THREATS
+       =============================== -->
+
+  <!-- Zero-Day: Unusual Process Behavior -->
+  <rule id="101101" level="8">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.parentImage" type="pcre2">(?i)(winword|excel|powerpnt|acrobat)</field>
+    <field name="win.eventdata.image" type="pcre2">(?i)(cmd|powershell|wscript|cscript)</field>
+    <description>ZERO-DAY: Document application spawning suspicious process</description>
+    <mitre>
+      <id>T1566.001</id>
+    </mitre>
+    <group>zero_day,document_exploit</group>
+  </rule>
+
+  <!-- Zero-Day: Execution from Temp Directories -->
+  <rule id="101102" level="7">
+    <if_sid>60103</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)(temp|tmp|appdata.*local.*temp)</field>
+    <field name="win.eventdata.image" type="pcre2">\.exe$</field>
+    <description>ZERO-DAY: Execution from temporary directory</description>
+    <group>zero_day,temp_execution</group>
+  </rule>
+
+  <!-- ===============================
+       PERFORMANCE AND MONITORING
+       =============================== -->
+
+  <!-- Performance: Rule Processing Time -->
+  <rule id="101201" level="3">
+    <if_sid>531</if_sid>
+    <field name="processing_time" type="pcre2">[5-9][0-9]{3,}|[0-9]{5,}</field>
+    <description>PERFORMANCE: High rule processing time detected</description>
+    <group>performance,monitoring</group>
+  </rule>
+
+  <!-- Performance: Agent Disconnection -->
+  <rule id="101202" level="5">
+    <if_sid>1730</if_sid>
+    <description>PERFORMANCE: Agent disconnected from manager</description>
+    <group>performance,agent_status</group>
+  </rule>
+
+</group>
