@@ -1,5 +1,5 @@
 # IntelliGuard-AI 🛡️🤖
-## AI-Driven Security Operations Center with Automated Threat Hunting and SOAR Integration
+## AI-Driven Security Operations Center with Automated Threat Hunting and SOAR Integration and Machine Learning for Enterprise Cybersecurity
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![SOC](https://img.shields.io/badge/SOC-AI--Driven-blue.svg)](https://github.com/yourusername/IntelliGuard-ai)
