@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliGuard-AI ROI Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-cards {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4ade80;
+        }
+        
+        .metric-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .metric-sublabel {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        
+        .chart-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .roi-timeline {
+            grid-column: 1 / -1;
+        }
+        
+        .benefits-breakdown {
+            grid-column: 1;
+        }
+        
+        .investment-timeline {
+            grid-column: 2;
+        }
+        
+        .comparison-section {
+            grid-column: 1 / -1;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .comparison-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #4ade80;
+        }
+        
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .before, .after {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .before {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .after {
+            border-left: 4px solid #4ade80;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-critical { background-color: #ef4444; }
+        .status-good { background-color: #4ade80; }
+        .status-warning { background-color: #f59e0b; }
+        
+        .key-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+        }
+        
+        .payback-highlight {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(74, 222, 128, 0.3);
+        }
+        
+        .payback-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 IntelliGuard-AI ROI Dashboard</h1>
+            <div class="subtitle">Financial Impact Analysis & Investment Justification</div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <!-- Key Metrics Cards -->
+            <div class="metric-cards">
+                <div class="metric-card">
+                    <div class="metric-value">723%</div>
+                    <div class="metric-label">3-Year ROI</div>
+                    <div class="metric-sublabel">Return on Investment</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">5.5</div>
+                    <div class="metric-label">Months</div>
+                    <div class="metric-sublabel">Payback Period</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$4.0M</div>
+                    <div class="metric-label">Net Present Value</div>
+                    <div class="metric-sublabel">3-Year NPV</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$1.6M</div>
+                    <div class="metric-label">Annual Benefits</div>
+                    <div class="metric-sublabel">Recurring Value</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">189%</div>
+                    <div class="metric-label">Internal Rate of Return</div>
+                    <div class="metric-sublabel">IRR Performance</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$600K</div>
+                    <div class="metric-label">Total Investment</div>
+                    <div class="metric-sublabel">3-Year Cost</div>
+                </div>
+            </div>
+            
+            <!-- ROI Timeline Chart -->
+            <div class="chart-container roi-timeline">
+                <div class="chart-title">📈 ROI Timeline & Cash Flow Projection</div>
+                <canvas id="roiChart" width="400" height="200"></canvas>
+            </div>
+            
+            <!-- Benefits Breakdown -->
+            <div class="chart-container benefits-breakdown">
+                <div class="chart-title">💎 Annual Benefits Breakdown</div>
+                <canvas id="benefitsChart" width="400" height="300"></canvas>
+            </div>
+            
+            <!-- Investment vs Returns -->
+            <div class="chart-container investment-timeline">
+                <div class="chart-title">⚖️ Investment vs Returns</div>
+                <canvas id="investmentChart" width="400" height="300"></canvas>
+            </div>
+            
+            <!-- Current State vs Future State Comparison -->
+            <div class="comparison-section">
+                <div class="chart-title">🔄 Current State vs. IntelliGuard-AI Transformation</div>
+                <div class="before-after">
+                    <div class="before">
+                        <h3>❌ Current State (High Risk)</h3>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-critical"></span>Threat Detection</span>
+                            <span>4-6 hours</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-critical"></span>False Positives</span>
+                            <span>87%</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-critical"></span>Manual Tasks</span>
+                            <span>60%</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-critical"></span>Incident Response</span>
+                            <span>8-12 hours</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-critical"></span>Annual Risk Cost</span>
+                            <span>$2.4M</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-critical"></span>Compliance Reporting</span>
+                            <span>2 weeks</span>
+                        </div>
+                    </div>
+                    <div class="after">
+                        <h3>✅ Future State (Optimized)</h3>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-good"></span>Threat Detection</span>
+                            <span>2-5 minutes</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-good"></span>False Positives</span>
+                            <span>15%</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-good"></span>Automated Tasks</span>
+                            <span>90%</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-good"></span>Incident Response</span>
+                            <span>1-2 hours</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-good"></span>Annual Risk Cost</span>
+                            <span>$377K</span>
+                        </div>
+                        <div class="key-metric">
+                            <span><span class="status-indicator status-good"></span>Compliance Reporting</span>
+                            <span>Real-time</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payback-highlight">
+                    <div>⚡ Investment Payback Period</div>
+                    <div class="payback-value">5.5 Months</div>
+                    <div>Every $1 invested returns $7.23 over 3 years</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ROI Timeline Chart
+        const roiCtx = document.getElementById('roiChart').getContext('2d');
+        const roiChart = new Chart(roiCtx, {
+            type: 'line',
+            data: {
+                labels: ['Month 0', 'Month 6', 'Year 1', 'Year 2', 'Year 3'],
+                datasets: [{
+                    label: 'Cumulative ROI (%)',
+                    data: [-50, 87, 313, 498, 723],
+                    borderColor: '#4ade80',
+                    backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Cumulative Cash Flow ($K)',
+                    data: [-300, 247, 1247, 2793, 4340],
+                    borderColor: '#60a5fa',
+                    backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    x: { 
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    y: { 
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                }
+            }
+        });
+        
+        // Benefits Breakdown Chart
+        const benefitsCtx = document.getElementById('benefitsChart').getContext('2d');
+        const benefitsChart = new Chart(benefitsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Personnel Savings', 'Business Disruption', 'Advanced Threats', 'Incident Response', 'False Positives', 'Compliance'],
+                datasets: [{
+                    data: [260, 375, 579, 228, 168, 36],
+                    backgroundColor: [
+                        '#4ade80',
+                        '#60a5fa',
+                        '#f59e0b',
+                        '#ef4444',
+                        '#8b5cf6',
+                        '#06b6d4'
+                    ],
+                    borderWidth: 2,
+                    borderColor: 'rgba(255,255,255,0.2)'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { 
+                            color: 'white',
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Investment vs Returns Chart
+        const investmentCtx = document.getElementById('investmentChart').getContext('2d');
+        const investmentChart = new Chart(investmentCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Year 1', 'Year 2', 'Year 3'],
+                datasets: [{
+                    label: 'Investment ($K)',
+                    data: [400, 100, 100],
+                    backgroundColor: '#ef4444',
+                    borderColor: '#dc2626',
+                    borderWidth: 1
+                }, {
+                    label: 'Benefits ($K)',
+                    data: [1647, 1647, 1647],
+                    backgroundColor: '#4ade80',
+                    borderColor: '#22c55e',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    x: { 
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    y: { 
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
