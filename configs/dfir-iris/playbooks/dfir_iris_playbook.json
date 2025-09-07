@@ -1,0 +1,590 @@
+{
+  "playbook_name": "IntelliGuard-AI Digital Forensics & Incident Response",
+  "version": "1.0.0",
+  "author": "AL NAFI AI-Ops Diploma Project",
+  "description": "Comprehensive DFIR playbook for IntelliGuard-AI security incidents",
+  "created_date": "2025-09-07",
+  "last_modified": "2025-09-07",
+  "tags": ["dfir", "incident-response", "forensics", "intelliguard-ai"],
+  
+  "playbook_metadata": {
+    "classification": "internal",
+    "criticality": "high",
+    "scope": "enterprise",
+    "regulatory_frameworks": ["gdpr", "hipaa", "pci-dss", "sox"],
+    "mitre_techniques": [
+      "T1005", "T1041", "T1055", "T1059", "T1070",
+      "T1078", "T1105", "T1486", "T1490", "T1566"
+    ]
+  },
+
+  "incident_types": [
+    {
+      "type": "malware_infection",
+      "severity": "high",
+      "estimated_duration": "4-8 hours",
+      "required_skills": ["malware_analysis", "memory_forensics", "network_analysis"]
+    },
+    {
+      "type": "ransomware_attack",
+      "severity": "critical",
+      "estimated_duration": "2-6 hours",
+      "required_skills": ["ransomware_analysis", "backup_restoration", "network_isolation"]
+    },
+    {
+      "type": "data_breach",
+      "severity": "critical",
+      "estimated_duration": "8-24 hours",
+      "required_skills": ["data_classification", "legal_compliance", "communication"]
+    },
+    {
+      "type": "insider_threat",
+      "severity": "medium",
+      "estimated_duration": "6-12 hours",
+      "required_skills": ["behavioral_analysis", "privilege_investigation", "hr_coordination"]
+    },
+    {
+      "type": "apt_campaign",
+      "severity": "critical",
+      "estimated_duration": "12-48 hours",
+      "required_skills": ["threat_intelligence", "attribution_analysis", "advanced_forensics"]
+    }
+  ],
+
+  "investigation_phases": [
+    {
+      "phase": "1_preparation",
+      "name": "Preparation & Initial Response",
+      "duration": "15-30 minutes",
+      "objectives": [
+        "Secure incident scene",
+        "Establish chain of custody",
+        "Deploy forensic tools",
+        "Document initial state"
+      ],
+      "tasks": [
+        {
+          "task_id": "prep_001",
+          "name": "Evidence Preservation",
+          "description": "Immediately preserve volatile evidence and establish forensic integrity",
+          "priority": "critical",
+          "estimated_time": "10 minutes",
+          "tools": ["FTK Imager", "Volatility", "KAPE"],
+          "commands": [
+            "# Memory dump collection",
+            "volatility -f memory.dump imageinfo",
+            "volatility -f memory.dump --profile=Win10x64_19041 pslist",
+            "volatility -f memory.dump --profile=Win10x64_19041 netscan"
+          ],
+          "outputs": [
+            "memory_dump.raw",
+            "volatile_artifacts.json",
+            "network_connections.csv"
+          ]
+        },
+        {
+          "task_id": "prep_002",
+          "name": "System Isolation",
+          "description": "Isolate compromised systems while preserving evidence",
+          "priority": "high",
+          "estimated_time": "5 minutes",
+          "tools": ["Network isolation tools", "Firewall rules"],
+          "commands": [
+            "# Network isolation without power-off",
+            "iptables -A INPUT -j DROP",
+            "iptables -A OUTPUT -j DROP",
+            "# Allow only forensic communication",
+            "iptables -A OUTPUT -d FORENSIC_SERVER -j ACCEPT"
+          ]
+        },
+        {
+          "task_id": "prep_003",
+          "name": "Documentation Setup",
+          "description": "Initialize case documentation and evidence log",
+          "priority": "medium",
+          "estimated_time": "10 minutes",
+          "tools": ["DFIR-IRIS", "Chain of custody forms"],
+          "required_info": [
+            "Incident timestamp",
+            "Affected systems list",
+            "Initial indicators",
+            "Reporting personnel"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "2_identification",
+      "name": "Threat Identification & Scoping",
+      "duration": "1-2 hours",
+      "objectives": [
+        "Identify attack vectors",
+        "Determine scope of compromise",
+        "Extract initial IOCs",
+        "Assess threat actor TTPs"
+      ],
+      "tasks": [
+        {
+          "task_id": "ident_001",
+          "name": "Malware Analysis",
+          "description": "Analyze suspicious files and processes",
+          "priority": "high",
+          "estimated_time": "45 minutes",
+          "tools": ["YARA", "PEiD", "IDA Pro", "Ghidra"],
+          "commands": [
+            "# Static analysis",
+            "yara-rules /path/to/rules /suspected/file",
+            "strings /suspected/file | grep -E '(http|ftp|tcp)'",
+            "# Hash analysis",
+            "md5sum /suspected/file",
+            "sha256sum /suspected/file"
+          ],
+          "indicators_to_extract": [
+            "File hashes (MD5, SHA1, SHA256)",
+            "C2 domains and IPs",
+            "Registry modifications",
+            "Persistence mechanisms"
+          ]
+        },
+        {
+          "task_id": "ident_002",
+          "name": "Timeline Construction",
+          "description": "Build forensic timeline of events",
+          "priority": "high",
+          "estimated_time": "30 minutes",
+          "tools": ["Plaso", "Timeline Explorer", "Log2timeline"],
+          "commands": [
+            "# Timeline creation",
+            "log2timeline.py timeline.plaso /evidence/drive/",
+            "psort.py -o l2tcsv timeline.plaso > timeline.csv",
+            "# Filter relevant timeframe",
+            "psort.py -o l2tcsv --time_slice='2025-09-07 10:00:00,2025-09-07 18:00:00' timeline.plaso"
+          ]
+        },
+        {
+          "task_id": "ident_003",
+          "name": "Network Analysis",
+          "description": "Analyze network traffic and communications",
+          "priority": "medium",
+          "estimated_time": "30 minutes",
+          "tools": ["Wireshark", "Zeek", "NetworkMiner"],
+          "analysis_points": [
+            "Suspicious outbound connections",
+            "Data exfiltration patterns",
+            "C2 communications",
+            "Lateral movement indicators"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "3_containment",
+      "name": "Threat Containment",
+      "duration": "30 minutes - 2 hours",
+      "objectives": [
+        "Prevent threat spread",
+        "Isolate compromised assets",
+        "Preserve evidence integrity",
+        "Maintain business continuity"
+      ],
+      "tasks": [
+        {
+          "task_id": "contain_001",
+          "name": "Network Segmentation",
+          "description": "Implement network-level containment",
+          "priority": "critical",
+          "estimated_time": "15 minutes",
+          "tools": ["Firewall", "Network switches", "ACLs"],
+          "immediate_actions": [
+            "Block malicious IPs at perimeter",
+            "Isolate affected network segments",
+            "Monitor for lateral movement",
+            "Preserve network logs"
+          ]
+        },
+        {
+          "task_id": "contain_002",
+          "name": "Account Management",
+          "description": "Secure compromised user accounts",
+          "priority": "high",
+          "estimated_time": "20 minutes",
+          "tools": ["Active Directory", "IAM systems"],
+          "actions": [
+            "Disable compromised accounts",
+            "Reset passwords for affected users",
+            "Revoke active sessions",
+            "Review account privileges"
+          ]
+        },
+        {
+          "task_id": "contain_003",
+          "name": "System Quarantine",
+          "description": "Quarantine infected systems",
+          "priority": "high",
+          "estimated_time": "30 minutes",
+          "quarantine_procedures": [
+            "Graceful shutdown if possible",
+            "Network isolation while powered",
+            "Memory dump before shutdown",
+            "Secure physical access"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "4_eradication",
+      "name": "Threat Eradication",
+      "duration": "2-6 hours",
+      "objectives": [
+        "Remove malicious artifacts",
+        "Close attack vectors",
+        "Patch vulnerabilities",
+        "Strengthen defenses"
+      ],
+      "tasks": [
+        {
+          "task_id": "erad_001",
+          "name": "Malware Removal",
+          "description": "Remove malicious software and artifacts",
+          "priority": "high",
+          "estimated_time": "2 hours",
+          "tools": ["Antivirus", "YARA", "Custom scripts"],
+          "removal_steps": [
+            "Identify all malware instances",
+            "Remove malicious files safely",
+            "Clean registry modifications",
+            "Remove persistence mechanisms"
+          ]
+        },
+        {
+          "task_id": "erad_002",
+          "name": "Vulnerability Patching",
+          "description": "Patch exploited vulnerabilities",
+          "priority": "high",
+          "estimated_time": "1 hour",
+          "focus_areas": [
+            "Operating system patches",
+            "Application vulnerabilities",
+            "Configuration hardening",
+            "Security control updates"
+          ]
+        },
+        {
+          "task_id": "erad_003",
+          "name": "IOC Implementation",
+          "description": "Implement detection for identified IOCs",
+          "priority": "medium",
+          "estimated_time": "30 minutes",
+          "tools": ["Wazuh", "SIEM rules", "Threat intelligence"],
+          "ioc_types": [
+            "File hashes",
+            "Network indicators",
+            "Registry keys",
+            "Behavioral patterns"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "5_recovery",
+      "name": "System Recovery",
+      "duration": "2-8 hours",
+      "objectives": [
+        "Restore normal operations",
+        "Verify system integrity",
+        "Monitor for reinfection",
+        "Document recovery process"
+      ],
+      "tasks": [
+        {
+          "task_id": "recov_001",
+          "name": "System Restoration",
+          "description": "Restore systems from clean backups",
+          "priority": "high",
+          "estimated_time": "4 hours",
+          "restoration_steps": [
+            "Verify backup integrity",
+            "Restore from clean backup",
+            "Apply security patches",
+            "Reconfigure security controls"
+          ]
+        },
+        {
+          "task_id": "recov_002",
+          "name": "Service Validation",
+          "description": "Validate restored services",
+          "priority": "medium",
+          "estimated_time": "1 hour",
+          "validation_checks": [
+            "Functionality testing",
+            "Performance monitoring",
+            "Security control verification",
+            "User access testing"
+          ]
+        },
+        {
+          "task_id": "recov_003",
+          "name": "Monitoring Enhancement",
+          "description": "Enhance monitoring for recovery period",
+          "priority": "medium",
+          "estimated_time": "30 minutes",
+          "monitoring_enhancements": [
+            "Increased log verbosity",
+            "Additional alerting rules",
+            "Extended retention period",
+            "Behavioral monitoring"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "6_lessons_learned",
+      "name": "Post-Incident Analysis",
+      "duration": "2-4 hours",
+      "objectives": [
+        "Document incident details",
+        "Identify improvement areas",
+        "Update procedures",
+        "Share threat intelligence"
+      ],
+      "tasks": [
+        {
+          "task_id": "lesson_001",
+          "name": "Incident Documentation",
+          "description": "Complete comprehensive incident report",
+          "priority": "high",
+          "estimated_time": "2 hours",
+          "report_sections": [
+            "Executive summary",
+            "Technical analysis",
+            "Timeline of events",
+            "IOCs and TTPs",
+            "Lessons learned",
+            "Recommendations"
+          ]
+        },
+        {
+          "task_id": "lesson_002",
+          "name": "Process Improvement",
+          "description": "Identify and implement improvements",
+          "priority": "medium",
+          "estimated_time": "1 hour",
+          "improvement_areas": [
+            "Detection capabilities",
+            "Response procedures",
+            "Tool effectiveness",
+            "Team coordination"
+          ]
+        },
+        {
+          "task_id": "lesson_003",
+          "name": "Threat Intelligence Sharing",
+          "description": "Share IOCs and TTPs with community",
+          "priority": "low",
+          "estimated_time": "30 minutes",
+          "sharing_platforms": [
+            "MISP",
+            "Industry groups",
+            "Government agencies",
+            "Vendor partners"
+          ]
+        }
+      ]
+    }
+  ],
+
+  "forensic_artifacts": {
+    "windows_artifacts": [
+      {
+        "artifact": "Windows Event Logs",
+        "location": "C:\\Windows\\System32\\winevt\\Logs\\",
+        "key_events": [
+          "4624 - Successful logon",
+          "4625 - Failed logon",
+          "4648 - Logon with explicit credentials",
+          "4720 - User account created",
+          "7045 - Service installed"
+        ]
+      },
+      {
+        "artifact": "Registry Hives",
+        "locations": [
+          "C:\\Windows\\System32\\config\\SYSTEM",
+          "C:\\Windows\\System32\\config\\SOFTWARE",
+          "C:\\Windows\\System32\\config\\SECURITY",
+          "C:\\Users\\[user]\\NTUSER.DAT"
+        ]
+      },
+      {
+        "artifact": "Prefetch Files",
+        "location": "C:\\Windows\\Prefetch\\",
+        "description": "Evidence of program execution"
+      },
+      {
+        "artifact": "Browser Artifacts",
+        "locations": [
+          "C:\\Users\\[user]\\AppData\\Local\\Microsoft\\Windows\\WebCache\\",
+          "C:\\Users\\[user]\\AppData\\Local\\Google\\Chrome\\User Data\\",
+          "C:\\Users\\[user]\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\"
+        ]
+      }
+    ],
+    "linux_artifacts": [
+      {
+        "artifact": "System Logs",
+        "location": "/var/log/",
+        "key_files": [
+          "auth.log - Authentication events",
+          "syslog - System events",
+          "kern.log - Kernel events",
+          "apache2/access.log - Web access"
+        ]
+      },
+      {
+        "artifact": "Command History",
+        "locations": [
+          "/home/[user]/.bash_history",
+          "/root/.bash_history",
+          "/home/[user]/.zsh_history"
+        ]
+      },
+      {
+        "artifact": "Process Information",
+        "location": "/proc/",
+        "description": "Runtime process and system information"
+      }
+    ],
+    "network_artifacts": [
+      {
+        "artifact": "PCAP Files",
+        "description": "Network packet captures",
+        "analysis_tools": ["Wireshark", "tcpdump", "tshark"]
+      },
+      {
+        "artifact": "Flow Records",
+        "description": "Network flow summaries",
+        "formats": ["NetFlow", "sFlow", "IPFIX"]
+      },
+      {
+        "artifact": "DNS Logs",
+        "description": "DNS query and response logs",
+        "indicators": ["DGA domains", "Suspicious TLDs", "C2 infrastructure"]
+      }
+    ]
+  },
+
+  "tools_and_techniques": {
+    "memory_analysis": {
+      "tools": ["Volatility", "Rekall", "MemProcFS"],
+      "techniques": [
+        "Process listing and analysis",
+        "Network connection enumeration",
+        "Malware detection in memory",
+        "Registry analysis from memory"
+      ]
+    },
+    "disk_forensics": {
+      "tools": ["Autopsy", "FTK", "SIFT Workstation"],
+      "techniques": [
+        "File system timeline analysis",
+        "Deleted file recovery",
+        "Metadata analysis",
+        "Hash verification"
+      ]
+    },
+    "network_forensics": {
+      "tools": ["Wireshark", "NetworkMiner", "Zeek"],
+      "techniques": [
+        "Protocol analysis",
+        "File extraction from traffic",
+        "Malware C2 analysis",
+        "Data exfiltration detection"
+      ]
+    },
+    "malware_analysis": {
+      "tools": ["IDA Pro", "Ghidra", "YARA", "Cuckoo Sandbox"],
+      "techniques": [
+        "Static analysis",
+        "Dynamic analysis",
+        "Behavioral analysis",
+        "Code reversing"
+      ]
+    }
+  },
+
+  "evidence_handling": {
+    "chain_of_custody": {
+      "required_fields": [
+        "Evidence ID",
+        "Description",
+        "Collection time/date",
+        "Collector name",
+        "Storage location",
+        "Access log"
+      ]
+    },
+    "storage_requirements": {
+      "physical_security": "Locked, access-controlled room",
+      "environmental": "Climate controlled, fire suppression",
+      "access_logging": "All access must be logged and justified",
+      "retention": "Minimum 7 years for legal proceedings"
+    },
+    "documentation_standards": {
+      "photographs": "Before, during, and after evidence collection",
+      "notes": "Detailed notes of all actions taken",
+      "timestamps": "All activities must be timestamped",
+      "signatures": "Chain of custody signatures required"
+    }
+  },
+
+  "legal_considerations": {
+    "data_protection": {
+      "gdpr_compliance": "Personal data handling procedures",
+      "data_minimization": "Collect only necessary evidence",
+      "consent_requirements": "Employee/user consent where required"
+    },
+    "regulatory_requirements": {
+      "notification_timelines": {
+        "GDPR": "72 hours to authorities",
+        "HIPAA": "60 days to affected individuals",
+        "PCI DSS": "Immediate to acquiring bank"
+      }
+    },
+    "evidence_admissibility": {
+      "authentication": "Prove evidence is what it claims to be",
+      "chain_of_custody": "Unbroken custody chain",
+      "best_evidence_rule": "Original evidence preferred",
+      "expert_testimony": "Qualified expert to explain technical evidence"
+    }
+  },
+
+  "quality_assurance": {
+    "validation_procedures": [
+      "Hash verification of evidence",
+      "Tool validation and calibration",
+      "Peer review of analysis",
+      "Documentation completeness check"
+    ],
+    "testing_requirements": [
+      "Regular tool testing",
+      "Procedure validation",
+      "Team competency assessment",
+      "Equipment functionality checks"
+    ]
+  },
+
+  "integration_points": {
+    "intelliguard_ai": {
+      "wazuh_integration": "Automated alert forwarding to DFIR-IRIS",
+      "thehive_integration": "Case creation and evidence linking",
+      "shuffle_integration": "Automated forensic workflow triggers",
+      "threat_intelligence": "IOC correlation and enrichment"
+    },
+    "external_systems": {
+      "law_enforcement": "LE liaison and evidence sharing procedures",
+      "legal_counsel": "Attorney-client privilege considerations",
+      "third_party_vendors": "Vendor coordination for compromised services",
+      "insurance": "Cyber insurance claim documentation"
+    }
+  }
+}
