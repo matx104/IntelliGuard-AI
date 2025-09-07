@@ -1,7 +1,7 @@
 # IntelliGuard-AI: Comprehensive Risk Assessment Framework
 ## Current State vs. Proposed Solution Security Risk Analysis
 
-**Prepared for:** Chief Information Officer & Risk Management Committee  
+**Prepared for:** AL NAFI Chief Information Officer & Risk Management Committee  
 **Date:** September 2025  
 **Assessment Scope:** Enterprise Cybersecurity Risk Profile  
 **Classification:** Confidential - Risk Analysis
