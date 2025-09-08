@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliGuard-AI - Threat Landscape Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0033 0%, #330033 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .threat-header {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 3px solid #ff5722;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .threat-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 87, 34, 0.3), transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .threat-header h1 {
+            font-size: 2.5em;
+            color: #ff5722;
+            text-shadow: 0 0 20px rgba(255, 87, 34, 0.5);
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .threat-header p {
+            color: #b0b0b0;
+            font-size: 1.1em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .risk-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .risk-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .risk-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255, 87, 34, 0.3), transparent);
+            transition: all 0.5s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .risk-card:hover::after {
+            width: 200%;
+            height: 200%;
+        }
+
+        .risk-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 87, 34, 0.3);
+        }
+
+        .risk-level {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .critical { color: #ff1744; text-shadow: 0 0 20px rgba(255, 23, 68, 0.8); }
+        .high { color: #ff5722; text-shadow: 0 0 20px rgba(255, 87, 34, 0.8); }
+        .medium { color: #ffc107; text-shadow: 0 0 20px rgba(255, 193, 7, 0.8); }
+        .low { color: #4caf50; text-shadow: 0 0 20px rgba(76, 175, 80, 0.8); }
+
+        .risk-label {
+            color: #b0b0b0;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .threat-matrix {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .matrix-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 87, 34, 0.3);
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(5, 1fr);
+            grid-template-rows: repeat(6, 80px);
+            gap: 2px;
+            margin-top: 20px;
+        }
+
+        .matrix-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .matrix-header {
+            background: rgba(255, 87, 34, 0.2);
+            font-weight: bold;
+            border: 1px solid rgba(255, 87, 34, 0.3);
+        }
+
+        .matrix-label {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: bold;
+            font-size: 0.8em;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .threat-cell {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .threat-cell:hover {
+            z-index: 10;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 87, 34, 0.5);
+        }
+
+        .heat-1 { background: rgba(76, 175, 80, 0.3); }
+        .heat-2 { background: rgba(255, 193, 7, 0.3); }
+        .heat-3 { background: rgba(255, 152, 0, 0.3); }
+        .heat-4 { background: rgba(255, 87, 34, 0.3); }
+        .heat-5 { background: rgba(255, 23, 68, 0.3); }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .chart-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 87, 34, 0.3);
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .threat-timeline {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .timeline-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 87, 34, 0.3);
+            position: relative;
+        }
+
+        .threat-event {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #ff5722;
+            transition: all 0.3s ease;
+        }
+
+        .threat-event:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .event-time {
+            font-weight: bold;
+            color: #ff5722;
+            margin-right: 20px;
+            min-width: 100px;
+        }
+
+        .event-description {
+            flex: 1;
+        }
+
+        .event-severity {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .severity-critical {
+            background: rgba(255, 23, 68, 0.3);
+            color: #ff1744;
+        }
+
+        .severity-high {
+            background: rgba(255, 87, 34, 0.3);
+            color: #ff5722;
+        }
+
+        .severity-medium {
+            background: rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+        }
+
+        .mitigation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.1), transparent);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #4caf50;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+
+        .stat-label {
+            color: #b0b0b0;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            border: 1px solid #ff5722;
+            max-width: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .matrix-grid {
+                grid-template-columns: 60px repeat(5, 1fr);
+                grid-template-rows: repeat(6, 60px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="threat-header">
+        <h1>🎯 Threat Landscape Analysis</h1>
+        <p>Real-time Risk Assessment & Mitigation Tracking</p>
+    </div>
+
+    <div class="risk-overview">
+        <div class="risk-card">
+            <div class="risk-level critical">8</div>
+            <div class="risk-label">Critical Risks</div>
+        </div>
+        <div class="risk-card">
+            <div class="risk-level high">15</div>
+            <div class="risk-label">High Risks</div>
+        </div>
+        <div class="risk-card">
+            <div class="risk-level medium">16</div>
+            <div class="risk-label">Medium Risks</div>
+        </div>
+        <div class="risk-card">
+            <div class="risk-level low">8</div>
+            <div class="risk-label">Low Risks</div>
+        </div>
+        <div class="risk-card">
+            <div class="risk-level low">76%</div>
+            <div class="risk-label">Risk Reduction</div>
+        </div>
+        <div class="risk-card">
+            <div class="risk-level low">2.4</div>
+            <div class="risk-label">Residual Score</div>
+        </div>
+    </div>
+
+    <div class="threat-matrix">
+        <div class="matrix-container">
+            <div class="chart-title">
+                <span>⚡</span>
+                Risk Heat Map - Likelihood vs Impact
+            </div>
+            <div class="matrix-grid">
+                <div class="matrix-cell matrix-header">Impact →</div>
+                <div class="matrix-cell matrix-header">Minimal</div>
+                <div class="matrix-cell matrix-header">Minor</div>
+                <div class="matrix-cell matrix-header">Moderate</div>
+                <div class="matrix-cell matrix-header">Major</div>
+                <div class="matrix-cell matrix-header">Catastrophic</div>
+                
+                <div class="matrix-cell matrix-label">Almost Certain</div>
+                <div class="matrix-cell threat-cell heat-2" data-threat="Phishing">Phishing</div>
+                <div class="matrix-cell threat-cell heat-3"></div>
+                <div class="matrix-cell threat-cell heat-4"></div>
+                <div class="matrix-cell threat-cell heat-5" data-threat="Data Breach">Data Breach</div>
+                <div class="matrix-cell threat-cell heat-5" data-threat="Ransomware">Ransomware</div>
+                
+                <div class="matrix-cell matrix-label">Likely</div>
+                <div class="matrix-cell threat-cell heat-1"></div>
+                <div class="matrix-cell threat-cell heat-2" data-threat="Malware">Malware</div>
+                <div class="matrix-cell threat-cell heat-3"></div>
+                <div class="matrix-cell threat-cell heat-4" data-threat="Insider Threat">Insider</div>
+                <div class="matrix-cell threat-cell heat-5" data-threat="APT">APT</div>
+                
+                <div class="matrix-cell matrix-label">Possible</div>
+                <div class="matrix-cell threat-cell heat-1"></div>
+                <div class="matrix-cell threat-cell heat-2"></div>
+                <div class="matrix-cell threat-cell heat-3" data-threat="DDoS">DDoS</div>
+                <div class="matrix-cell threat-cell heat-4" data-threat="Supply Chain">Supply Chain</div>
+                <div class="matrix-cell threat-cell heat-4" data-threat="Zero-Day">Zero-Day</div>
+                
+                <div class="matrix-cell matrix-label">Unlikely</div>
+                <div class="matrix-cell threat-cell heat-1"></div>
+                <div class="matrix-cell threat-cell heat-1"></div>
+                <div class="matrix-cell threat-cell heat-2"></div>
+                <div class="matrix-cell threat-cell heat-3"></div>
+                <div class="matrix-cell threat-cell heat-3"></div>
+                
+                <div class="matrix-cell matrix-label">Rare</div>
+                <div class="matrix-cell threat-cell heat-1"></div>
+                <div class="matrix-cell threat-cell heat-1"></div>
+                <div class="matrix-cell threat-cell heat-1"></div>
+                <div class="matrix-cell threat-cell heat-2"></div>
+                <div class="matrix-cell threat-cell heat-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="charts-section">
+        <div class="chart-container">
+            <div class="chart-title">
+                <span>📊</span>
+                Threat Detection Trends (30 Days)
+            </div>
+            <canvas id="threatTrendChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-title">
+                <span>🛡️</span>
+                Attack Vector Distribution
+            </div>
+            <canvas id="attackVectorChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-title">
+                <span>⚡</span>
+                Mitigation Effectiveness
+            </div>
+            <canvas id="mitigationChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-title">
+                <span>🎯</span>
+                Threat Actor Attribution
+            </div>
+            <canvas id="actorChart"></canvas>
+        </div>
+    </div>
+
+    <div class="threat-timeline">
+        <div class="timeline-container">
+            <div class="chart-title">
+                <span>⏰</span>
+                Recent Threat Events
+            </div>
+            <div class="threat-event">
+                <span class="event-time">2 min ago</span>
+                <span class="event-description">Suspicious login attempt blocked from IP 192.168.1.100</span>
+                <span class="event-severity severity-medium">Medium</span>
+            </div>
+            <div class="threat-event">
+                <span class="event-time">15 min ago</span>
+                <span class="event-description">Ransomware signature detected and quarantined</span>
+                <span class="event-severity severity-critical">Critical</span>
+            </div>
+            <div class="threat-event">
+                <span class="event-time">1 hour ago</span>
+                <span class="event-description">DDoS attack mitigated - 1.2M requests blocked</span>
+                <span class="event-severity severity-high">High</span>
+            </div>
+            <div class="threat-event">
+                <span class="event-time">3 hours ago</span>
+                <span class="event-description">Phishing email campaign detected and filtered</span>
+                <span class="event-severity severity-medium">Medium</span>
+            </div>
+            <div class="threat-event">
+                <span class="event-time">6 hours ago</span>
+                <span class="event-description">Zero-day vulnerability patch applied across infrastructure</span>
+                <span class="event-severity severity-critical">Critical</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mitigation-stats">
+        <div class="stat-card">
+            <div class="stat-value">98%</div>
+            <div class="stat-label">Threats Blocked</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">2.5min</div>
+            <div class="stat-label">Avg Detection Time</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">15sec</div>
+            <div class="stat-label">Avg Response Time</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">1,247</div>
+            <div class="stat-label">Threats Mitigated Today</div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Chart.js configuration
+        Chart.defaults.color = '#ffffff';
+        Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+
+        // Threat Trend Chart
+        const ctx1 = document.getElementById('threatTrendChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 30}, (_, i) => `Day ${i + 1}`),
+                datasets: [{
+                    label: 'Critical',
+                    data: Array.from({length: 30}, () => Math.floor(Math.random() * 10) + 5),
+                    borderColor: '#ff1744',
+                    backgroundColor: 'rgba(255, 23, 68, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'High',
+                    data: Array.from({length: 30}, () => Math.floor(Math.random() * 20) + 10),
+                    borderColor: '#ff5722',
+                    backgroundColor: 'rgba(255, 87, 34, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Medium',
+                    data: Array.from({length: 30}, () => Math.floor(Math.random() * 30) + 20),
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Attack Vector Chart
+        const ctx2 = document.getElementById('attackVectorChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'polarArea',
+            data: {
+                labels: ['Email', 'Web', 'Network', 'Endpoint', 'Cloud', 'Mobile'],
+                datasets: [{
+                    data: [35, 25, 20, 10, 7, 3],
+                    backgroundColor: [
+                        'rgba(255, 23, 68, 0.7)',
+                        'rgba(255, 87, 34, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(76, 175, 80, 0.7)',
+                        'rgba(33, 150, 243, 0.7)',
+                        'rgba(156, 39, 176, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // Mitigation Effectiveness Chart
+        const ctx3 = document.getElementById('mitigationChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['Firewall', 'IDS/IPS', 'EDR', 'SIEM', 'SOAR', 'ML/AI'],
+                datasets: [{
+                    label: 'Before IntelliGuard',
+                    data: [60, 55, 50, 45, 30, 20],
+                    backgroundColor: 'rgba(255, 87, 34, 0.7)'
+                }, {
+                    label: 'After IntelliGuard',
+                    data: [95, 92, 98, 99, 95, 93],
+                    backgroundColor: 'rgba(76, 175, 80, 0.7)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Threat Actor Chart
+        const ctx4 = document.getElementById('actorChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cybercriminals', 'Nation-State', 'Hacktivists', 'Insiders', 'Script Kiddies'],
+                datasets: [{
+                    data: [45, 25, 15, 10, 5],
+                    backgroundColor: [
+                        'rgba(255, 23, 68, 0.8)',
+                        'rgba(255, 87, 34, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(156, 39, 176, 0.8)',
+                        'rgba(76, 175, 80, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Add tooltips for threat cells
+        document.querySelectorAll('.threat-cell[data-threat]').forEach(cell => {
+            cell.addEventListener('mouseenter', (e) => {
+                const threat = e.target.dataset.threat;
+                const tooltip = document.getElementById('tooltip');
+                
+                const threatInfo = {
+                    'Ransomware': 'Critical threat with 85% baseline probability, reduced to 20% with IntelliGuard. Automated response in < 15 seconds.',
+                    'APT': 'Advanced Persistent Threats detected through ML behavioral analysis. 90% reduction in dwell time.',
+                    'Data Breach': 'Potential $4.45M impact reduced to $150K through rapid detection and containment.',
+                    'Insider Threat': 'User behavior analytics detect anomalous activities with 92% accuracy.',
+                    'Zero-Day': 'Unknown vulnerabilities detected through anomaly detection without signatures.',
+                    'Supply Chain': 'Third-party risk monitoring across all vendors and partners.',
+                    'DDoS': 'Distributed attacks mitigated automatically with traffic filtering.',
+                    'Phishing': 'Email threats blocked with 98% accuracy using ML classification.',
+                    'Malware': 'Malicious software detected and quarantined in real-time.'
+                };
+                
+                if (threatInfo[threat]) {
+                    tooltip.innerHTML = `<strong>${threat}</strong><br>${threatInfo[threat]}`;
+                    tooltip.style.display = 'block';
+                }
+            });
+            
+            cell.addEventListener('mousemove', (e) => {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.style.left = e.pageX + 10 + 'px';
+                tooltip.style.top = e.pageY + 10 + 'px';
+            });
+            
+            cell.addEventListener('mouseleave', () => {
+                document.getElementById('tooltip').style.display = 'none';
+            });
+        });
+
+        // Animate risk cards
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'pulse 2s ease-in-out';
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.risk-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Simulate real-time threat events
+        function addNewThreatEvent() {
+            const events = [
+                { severity: 'critical', desc: 'Zero-day exploit attempt blocked' },
+                { severity: 'high', desc: 'Suspicious lateral movement detected' },
+                { severity: 'medium', desc: 'Unusual data transfer pattern identified' },
+                { severity: 'high', desc: 'Privilege escalation attempt prevented' },
+                { severity: 'critical', desc: 'Ransomware encryption behavior detected' },
+                { severity: 'medium', desc: 'Phishing campaign targeting executives' }
+            ];
+            
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            const container = document.querySelector('.timeline-container');
+            const existingEvents = container.querySelectorAll('.threat-event');
+            
+            if (existingEvents.length > 5) {
+                existingEvents[existingEvents.length - 1].remove();
+            }
+            
+            const newEvent = document.createElement('div');
+            newEvent.className = 'threat-event';
+            newEvent.style.opacity = '0';
+            newEvent.innerHTML = `
+                <span class="event-time">Just now</span>
+                <span class="event-description">${randomEvent.desc}</span>
+                <span class="event-severity severity-${randomEvent.severity}">${randomEvent.severity}</span>
+            `;
+            
+            container.insertBefore(newEvent, existingEvents[0]);
+            
+            setTimeout(() => {
+                newEvent.style.opacity = '1';
+                newEvent.style.transition = 'opacity 0.5s ease';
+            }, 100);
+            
+            // Update time for other events
+            existingEvents.forEach((event, index) => {
+                const timeElement = event.querySelector('.event-time');
+                const times = ['2 min ago', '5 min ago', '15 min ago', '30 min ago', '1 hour ago'];
+                if (times[index]) {
+                    timeElement.textContent = times[index];
+                }
+            });
+        }
+
+        // Add new threat event every 10 seconds
+        setInterval(addNewThreatEvent, 10000);
+
+        // Update mitigation stats
+        function updateStats() {
+            const statValues = document.querySelectorAll('.stat-value');
+            
+            // Update threats mitigated counter
+            const threatsElement = statValues[3];
+            if (threatsElement.textContent.match(/\d+/)) {
+                const currentValue = parseInt(threatsElement.textContent);
+                threatsElement.textContent = (currentValue + Math.floor(Math.random() * 5) + 1).toString();
+            }
+            
+            // Occasionally flash a stat card
+            const randomCard = document.querySelectorAll('.stat-card')[Math.floor(Math.random() * 4)];
+            randomCard.style.borderColor = '#4caf50';
+            randomCard.style.boxShadow = '0 0 20px rgba(76, 175, 80, 0.5)';
+            
+            setTimeout(() => {
+                randomCard.style.borderColor = 'rgba(76, 175, 80, 0.3)';
+                randomCard.style.boxShadow = 'none';
+            }, 1000);
+        }
+
+        // Update stats every 3 seconds
+        setInterval(updateStats, 3000);
+
+        // Heat map cell animations
+        document.querySelectorAll('.threat-cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                this.style.animation = 'pulse 0.5s ease';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

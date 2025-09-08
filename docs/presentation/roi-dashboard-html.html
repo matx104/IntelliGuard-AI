@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliGuard-AI - ROI Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5em;
+            color: #4CAF50;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            color: #b0b0b0;
+            font-size: 1.1em;
+        }
+
+        .roi-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76,175,80,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .card-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .card-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #4CAF50;
+            text-shadow: 0 0 20px rgba(76,175,80,0.5);
+            margin-bottom: 10px;
+        }
+
+        .card-label {
+            color: #b0b0b0;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-change {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #4CAF50;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .chart-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        .timeline-section {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #4CAF50, #2196F3);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .timeline-content {
+            width: 45%;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: auto;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #4CAF50;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+            z-index: 1;
+        }
+
+        .financial-table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .financial-table th,
+        .financial-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .financial-table th {
+            background: rgba(76,175,80,0.2);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+        }
+
+        .financial-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .positive {
+            color: #4CAF50;
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline::before {
+                left: 20px;
+            }
+            
+            .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px !important;
+            }
+            
+            .timeline-marker {
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <h1>💰 ROI Dashboard</h1>
+        <p>IntelliGuard-AI Financial Impact Analysis</p>
+    </div>
+
+    <div class="roi-summary">
+        <div class="summary-card">
+            <div class="card-icon">📈</div>
+            <div class="card-value">723%</div>
+            <div class="card-label">3-Year ROI</div>
+            <div class="card-change">↑ Exceeding target by 223%</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="card-icon">💵</div>
+            <div class="card-value">$1.6M</div>
+            <div class="card-label">Annual Savings</div>
+            <div class="card-change">↑ Cost reduction achieved</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="card-icon">⏱️</div>
+            <div class="card-value">5.5mo</div>
+            <div class="card-label">Payback Period</div>
+            <div class="card-change">↓ 6.5 months faster than average</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="card-icon">🛡️</div>
+            <div class="card-value">76%</div>
+            <div class="card-label">Risk Reduction</div>
+            <div class="card-change">↑ $9.75M risk mitigation/year</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="card-icon">📊</div>
+            <div class="card-value">$4.0M</div>
+            <div class="card-label">3-Year NPV</div>
+            <div class="card-change">↑ Net present value</div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="card-icon">🎯</div>
+            <div class="card-value">189%</div>
+            <div class="card-label">IRR</div>
+            <div class="card-change">↑ Internal rate of return</div>
+        </div>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>📊</span>
+                Cost-Benefit Analysis (3 Years)
+            </div>
+            <canvas id="costBenefitChart"></canvas>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>💰</span>
+                Cumulative ROI Growth
+            </div>
+            <canvas id="roiGrowthChart"></canvas>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>🎯</span>
+                Cost Savings by Category
+            </div>
+            <canvas id="savingsChart"></canvas>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>📈</span>
+                Risk Reduction Impact
+            </div>
+            <canvas id="riskChart"></canvas>
+        </div>
+    </div>
+
+    <div class="timeline-section">
+        <div class="chart-title">
+            <span>⏰</span>
+            ROI Timeline & Milestones
+        </div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <strong>Month 0</strong>
+                    <p>Initial Investment: $200K</p>
+                    <p>Platform deployment begins</p>
+                </div>
+                <div class="timeline-marker"></div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <strong>Month 3</strong>
+                    <p>First Cost Savings: $50K/month</p>
+                    <p>40% automation achieved</p>
+                </div>
+                <div class="timeline-marker"></div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <strong>Month 6</strong>
+                    <p>Break-even Point</p>
+                    <p>ROI turns positive</p>
+                </div>
+                <div class="timeline-marker"></div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <strong>Month 12</strong>
+                    <p>Annual Savings: $1.6M</p>
+                    <p>90% automation achieved</p>
+                </div>
+                <div class="timeline-marker"></div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <strong>Month 36</strong>
+                    <p>Total ROI: 723%</p>
+                    <p>$9.75M total value delivered</p>
+                </div>
+                <div class="timeline-marker"></div>
+            </div>
+        </div>
+        
+        <table class="financial-table">
+            <thead>
+                <tr>
+                    <th>Financial Metric</th>
+                    <th>Before IntelliGuard</th>
+                    <th>After IntelliGuard</th>
+                    <th>Improvement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Annual Security Costs</td>
+                    <td>$2,400,000</td>
+                    <td>$800,000</td>
+                    <td class="positive">↓ 67%</td>
+                </tr>
+                <tr>
+                    <td>Incident Response Time</td>
+                    <td>8-12 hours</td>
+                    <td>1-2 hours</td>
+                    <td class="positive">↓ 85%</td>
+                </tr>
+                <tr>
+                    <td>False Positive Rate</td>
+                    <td>87%</td>
+                    <td>15%</td>
+                    <td class="positive">↓ 82%</td>
+                </tr>
+                <tr>
+                    <td>Breach Risk Cost</td>
+                    <td>$4,450,000</td>
+                    <td>$150,000</td>
+                    <td class="positive">↓ 97%</td>
+                </tr>
+                <tr>
+                    <td>Compliance Penalties</td>
+                    <td>$2,000,000</td>
+                    <td>$100,000</td>
+                    <td class="positive">↓ 95%</td>
+                </tr>
+                <tr>
+                    <td>Downtime Costs</td>
+                    <td>$2,400,000</td>
+                    <td>$200,000</td>
+                    <td class="positive">↓ 92%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Wait for DOM to load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Chart.js configuration
+            Chart.defaults.color = '#ffffff';
+            Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+
+            // Cost-Benefit Analysis Chart
+            const ctx1 = document.getElementById('costBenefitChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Year 1', 'Year 2', 'Year 3'],
+                    datasets: [{
+                        label: 'Costs',
+                        data: [400000, 100000, 100000],
+                        backgroundColor: 'rgba(244, 67, 54, 0.7)',
+                        borderColor: 'rgba(244, 67, 54, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Benefits',
+                        data: [1600000, 2000000, 2400000],
+                        backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value/1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // ROI Growth Chart
+            const ctx2 = document.getElementById('roiGrowthChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8', 'Q9', 'Q10', 'Q11', 'Q12'],
+                    datasets: [{
+                        label: 'Cumulative ROI %',
+                        data: [-50, -25, 0, 50, 120, 200, 300, 420, 550, 620, 680, 723],
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Savings by Category Chart
+            const ctx3 = document.getElementById('savingsChart').getContext('2d');
+            new Chart(ctx3, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Automation', 'Risk Reduction', 'Compliance', 'Efficiency', 'Downtime'],
+                    datasets: [{
+                        data: [600000, 400000, 300000, 200000, 100000],
+                        backgroundColor: [
+                            'rgba(76, 175, 80, 0.8)',
+                            'rgba(33, 150, 243, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(156, 39, 176, 0.8)',
+                            'rgba(255, 87, 34, 0.8)'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': $' + (context.parsed/1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Risk Reduction Chart
+            const ctx4 = document.getElementById('riskChart').getContext('2d');
+            new Chart(ctx4, {
+                type: 'radar',
+                data: {
+                    labels: ['APT', 'Ransomware', 'Insider Threat', 'Data Breach', 'Compliance', 'Downtime'],
+                    datasets: [{
+                        label: 'Before',
+                        data: [80, 85, 60, 75, 70, 72],
+                        borderColor: 'rgba(244, 67, 54, 1)',
+                        backgroundColor: 'rgba(244, 67, 54, 0.2)'
+                    }, {
+                        label: 'After',
+                        data: [15, 20, 10, 8, 5, 8],
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            // Animate numbers on load
+            function animateValue(element, start, end, duration) {
+                const range = end - start;
+                const increment = range / (duration / 16);
+                let current = start;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                        current = end;
+                        clearInterval(timer);
+                    }
+                    
+                    if (element.textContent.includes('%')) {
+                        element.textContent = Math.round(current) + '%';
+                    } else if (element.textContent.includes('$')) {
+                        element.textContent = '$' + (current / 1000000).toFixed(1) + 'M';
+                    } else if (element.textContent.includes('mo')) {
+                        element.textContent = (current / 1).toFixed(1) + 'mo';
+                    } else {
+                        element.textContent = Math.round(current);
+                    }
+                }, 16);
+            }
+
+            // Trigger animations when cards come into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const valueElement = entry.target.querySelector('.card-value');
+                        if (valueElement && !valueElement.dataset.animated) {
+                            valueElement.dataset.animated = 'true';
+                            const text = valueElement.textContent;
+                            
+                            if (text === '723%') {
+                                animateValue(valueElement, 0, 723, 2000);
+                            } else if (text === '$1.6M') {
+                                valueElement.textContent = '$0.0M';
+                                animateValue(valueElement, 0, 1600000, 2000);
+                            } else if (text === '5.5mo') {
+                                valueElement.textContent = '0.0mo';
+                                animateValue(valueElement, 12, 5.5, 2000);
+                            } else if (text === '76%') {
+                                animateValue(valueElement, 0, 76, 2000);
+                            } else if (text === '$4.0M') {
+                                valueElement.textContent = '$0.0M';
+                                animateValue(valueElement, 0, 4000000, 2000);
+                            } else if (text === '189%') {
+                                animateValue(valueElement, 0, 189, 2000);
+                            }
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('.summary-card').forEach(card => {
+                observer.observe(card);
+            });
+
+            // Add real-time updates simulation
+            setInterval(() => {
+                // Update a random metric slightly
+                const cards = document.querySelectorAll('.card-change');
+                if (cards.length > 0) {
+                    const randomCard = cards[Math.floor(Math.random() * cards.length)];
+                    
+                    // Simulate a small change
+                    randomCard.style.color = '#ffeb3b';
+                    setTimeout(() => {
+                        randomCard.style.color = '#4CAF50';
+                    }, 500);
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

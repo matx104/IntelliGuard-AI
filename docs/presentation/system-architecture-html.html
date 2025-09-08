@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliGuard-AI - Interactive System Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .architecture-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .layer {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            padding: 25px;
+            position: relative;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .layer:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .layer-title {
+            font-size: 1.5em;
+            color: #00d4ff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .layer-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #00d4ff, #0080ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .component {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .component::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .component:hover::before {
+            left: 100%;
+        }
+
+        .component:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .component-name {
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .component-desc {
+            color: #b0b0b0;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
+            }
+        }
+
+        .data-flow {
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .flow-step {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            position: relative;
+        }
+
+        .flow-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #00d4ff;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 128, 255, 0.1));
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .metric-label {
+            color: #a0a0a0;
+            margin-top: 10px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            border: 1px solid #00d4ff;
+        }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .components {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-step:not(:last-child)::after {
+                content: '↓';
+                right: 50%;
+                bottom: -25px;
+                top: auto;
+                transform: translateX(50%);
+            }
+            
+            .flow-diagram {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ IntelliGuard-AI System Architecture</h1>
+        <p>Interactive Enterprise Security Operations Platform v2.0</p>
+    </div>
+
+    <div class="architecture-container">
+        <!-- Service Mesh Layer -->
+        <div class="layer" data-layer="service-mesh">
+            <div class="layer-title">
+                <span class="layer-icon">🌐</span>
+                Service Mesh & Load Balancing
+            </div>
+            <div class="components">
+                <div class="component" data-component="traefik">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Traefik</div>
+                    <div class="component-desc">Reverse proxy, SSL termination, load balancing</div>
+                </div>
+                <div class="component" data-component="consul">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Consul</div>
+                    <div class="component-desc">Service discovery, health checking, KV store</div>
+                </div>
+                <div class="component" data-component="docker-network">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Docker Networks</div>
+                    <div class="component-desc">Container isolation, encrypted overlay networks</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Presentation Layer -->
+        <div class="layer" data-layer="presentation">
+            <div class="layer-title">
+                <span class="layer-icon">📊</span>
+                Presentation & Status Layer
+            </div>
+            <div class="components">
+                <div class="component" data-component="grafana">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Grafana</div>
+                    <div class="component-desc">Executive & technical dashboards, KPI tracking</div>
+                </div>
+                <div class="component" data-component="thehive">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">TheHive</div>
+                    <div class="component-desc">Case management, incident response coordination</div>
+                </div>
+                <div class="component" data-component="uptime-kuma">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Uptime Kuma</div>
+                    <div class="component-desc">Service monitoring, public status pages</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerting Layer -->
+        <div class="layer" data-layer="alerting">
+            <div class="layer-title">
+                <span class="layer-icon">🚨</span>
+                Alerting & Notification Layer
+            </div>
+            <div class="components">
+                <div class="component" data-component="alertmanager">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Alertmanager</div>
+                    <div class="component-desc">Multi-channel routing, alert correlation</div>
+                </div>
+                <div class="component" data-component="slack">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Slack Integration</div>
+                    <div class="component-desc">Real-time team notifications</div>
+                </div>
+                <div class="component" data-component="pagerduty">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">PagerDuty</div>
+                    <div class="component-desc">Critical incident escalation</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOAR Layer -->
+        <div class="layer" data-layer="soar">
+            <div class="layer-title">
+                <span class="layer-icon">🤖</span>
+                SOAR Integration Layer
+            </div>
+            <div class="components">
+                <div class="component" data-component="shuffle">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Shuffle</div>
+                    <div class="component-desc">Workflow automation, API orchestration</div>
+                </div>
+                <div class="component" data-component="cortex">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Cortex</div>
+                    <div class="component-desc">Observable analysis, automated responders</div>
+                </div>
+                <div class="component" data-component="dfir-iris">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">DFIR-IRIS</div>
+                    <div class="component-desc">Digital forensics, incident response</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI/ML Layer -->
+        <div class="layer" data-layer="ai-ml">
+            <div class="layer-title">
+                <span class="layer-icon">🧠</span>
+                AI/ML Analytics Engine
+            </div>
+            <div class="components">
+                <div class="component" data-component="threat-hunting">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Threat Hunting</div>
+                    <div class="component-desc">Proactive threat detection algorithms</div>
+                </div>
+                <div class="component" data-component="behavioral-analysis">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Behavioral Analysis</div>
+                    <div class="component-desc">User & entity behavior analytics</div>
+                </div>
+                <div class="component" data-component="anomaly-detection">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Anomaly Detection</div>
+                    <div class="component-desc">ML-based pattern recognition</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitoring Layer -->
+        <div class="layer" data-layer="monitoring">
+            <div class="layer-title">
+                <span class="layer-icon">📈</span>
+                Monitoring & Metrics
+            </div>
+            <div class="components">
+                <div class="component" data-component="prometheus">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Prometheus</div>
+                    <div class="component-desc">Metrics collection, alerting rules</div>
+                </div>
+                <div class="component" data-component="node-exporter">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Node Exporters</div>
+                    <div class="component-desc">System metrics, resource monitoring</div>
+                </div>
+                <div class="component" data-component="blackbox">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Blackbox Monitoring</div>
+                    <div class="component-desc">External service monitoring</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Collection Layer -->
+        <div class="layer" data-layer="data-collection">
+            <div class="layer-title">
+                <span class="layer-icon">🔍</span>
+                Data Collection & Processing
+            </div>
+            <div class="components">
+                <div class="component" data-component="wazuh">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Wazuh</div>
+                    <div class="component-desc">SIEM/XDR, 100+ custom rules</div>
+                </div>
+                <div class="component" data-component="elasticsearch">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Elasticsearch</div>
+                    <div class="component-desc">Log analytics, data storage</div>
+                </div>
+                <div class="component" data-component="filebeat">
+                    <div class="status-indicator"></div>
+                    <div class="component-name">Filebeat</div>
+                    <div class="component-desc">Log shipping, data ingestion</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Flow Diagram -->
+        <div class="data-flow">
+            <div class="layer-title">
+                <span class="layer-icon">⚡</span>
+                Real-Time Data Flow
+            </div>
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <strong>Data Sources</strong>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #a0a0a0;">
+                        Endpoints, Network, Cloud
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <strong>Collection</strong>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #a0a0a0;">
+                        Wazuh Agents, Beats
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <strong>Processing</strong>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #a0a0a0;">
+                        Normalization, Enrichment
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <strong>Analysis</strong>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #a0a0a0;">
+                        ML Models, Correlation
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <strong>Response</strong>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #a0a0a0;">
+                        Automated Actions
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-value">2-5min</div>
+                <div class="metric-label">Mean Time to Detect</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">99.9%</div>
+                <div class="metric-label">Service Availability</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">90%</div>
+                <div class="metric-label">Automation Rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">82%</div>
+                <div class="metric-label">Alert Noise Reduction</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">76%</div>
+                <div class="metric-label">Risk Reduction</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">723%</div>
+                <div class="metric-label">3-Year ROI</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #00ff00;"></div>
+            <span>Active & Healthy</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ffff00;"></div>
+            <span>Warning State</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ff0000;"></div>
+            <span>Critical Issue</span>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Component details for tooltips
+        const componentDetails = {
+            'traefik': {
+                title: 'Traefik',
+                details: 'Modern reverse proxy and load balancer with automatic SSL certificate management, dynamic configuration, and service discovery integration.',
+                metrics: 'Handles 100K+ requests/sec, 99.99% uptime'
+            },
+            'consul': {
+                title: 'Consul',
+                details: 'Service mesh solution providing service discovery, health checking, and distributed key-value storage for configuration management.',
+                metrics: 'Manages 50+ services, sub-second discovery'
+            },
+            'grafana': {
+                title: 'Grafana',
+                details: 'Advanced visualization platform with 15+ custom dashboards for executive reporting, SOC operations, and technical metrics.',
+                metrics: '50+ data sources, real-time updates'
+            },
+            'wazuh': {
+                title: 'Wazuh',
+                details: 'Comprehensive SIEM/XDR platform with host intrusion detection, log analysis, vulnerability detection, and compliance monitoring.',
+                metrics: 'Processing 10TB/day, 100+ custom rules'
+            },
+            'alertmanager': {
+                title: 'Alertmanager',
+                details: 'Handles alert routing, grouping, silencing, and multi-channel notifications with intelligent de-duplication.',
+                metrics: '82% noise reduction, <30s delivery'
+            },
+            'shuffle': {
+                title: 'Shuffle SOAR',
+                details: 'Security orchestration platform automating incident response workflows with 200+ app integrations.',
+                metrics: '90% automation rate, 500+ workflows/day'
+            },
+            'elasticsearch': {
+                title: 'Elasticsearch',
+                details: 'Distributed search and analytics engine storing and analyzing security events with sub-second query response.',
+                metrics: '10TB indexed data, 365-day retention'
+            },
+            'prometheus': {
+                title: 'Prometheus',
+                details: 'Time-series database collecting metrics from all services with powerful query language and alerting rules.',
+                metrics: '1M+ metrics/min, 90-day retention'
+            }
+        };
+
+        // Add interactive tooltips
+        document.querySelectorAll('.component').forEach(component => {
+            component.addEventListener('mouseenter', (e) => {
+                const componentId = e.currentTarget.dataset.component;
+                const details = componentDetails[componentId];
+                
+                if (details) {
+                    const tooltip = document.getElementById('tooltip');
+                    tooltip.innerHTML = `
+                        <strong>${details.title}</strong><br>
+                        <p style="margin: 5px 0;">${details.details}</p>
+                        <em style="color: #00d4ff;">${details.metrics}</em>
+                    `;
+                    tooltip.style.display = 'block';
+                }
+            });
+            
+            component.addEventListener('mousemove', (e) => {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.style.left = e.pageX + 10 + 'px';
+                tooltip.style.top = e.pageY + 10 + 'px';
+            });
+            
+            component.addEventListener('mouseleave', () => {
+                document.getElementById('tooltip').style.display = 'none';
+            });
+        });
+
+        // Animate metrics on scroll
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'pulse 1s ease-in-out';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.metric-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Simulate real-time status updates
+        function updateStatus() {
+            const indicators = document.querySelectorAll('.status-indicator');
+            indicators.forEach(indicator => {
+                const random = Math.random();
+                if (random > 0.95) {
+                    indicator.style.background = '#ffff00'; // Warning
+                } else if (random > 0.99) {
+                    indicator.style.background = '#ff0000'; // Critical
+                } else {
+                    indicator.style.background = '#00ff00'; // Healthy
+                }
+            });
+        }
+
+        // Update status every 5 seconds
+        setInterval(updateStatus, 5000);
+
+        // Add click interaction for layers
+        document.querySelectorAll('.layer').forEach(layer => {
+            layer.addEventListener('click', (e) => {
+                if (e.target.closest('.component')) return;
+                
+                layer.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    layer.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
