@@ -1,940 +1,872 @@
 {
-  "title": "AI-Driven SOC - Security Overview",
-  "tags": ["ai-soc", "security", "threats"],
-  "timezone": "browser",
-  "schemaVersion": 16,
-  "version": 0,
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 100},
+              {"color": "red", "value": 500}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "security-events",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Total Security Events",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "orange", "value": 50},
+              {"color": "red", "value": 100}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "threat-alerts",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Threats Detected",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "blue", "value": null},
+              {"color": "yellow", "value": 10},
+              {"color": "red", "value": 25}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "threat-alerts AND severity:HIGH",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "High Priority Alerts",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 50},
+              {"color": "red", "value": 75}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "field": "risk_score",
+              "id": "1",
+              "type": "avg"
+            }
+          ],
+          "query": "threat-alerts",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Average Risk Score",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 20
+          },
+          "color": {"mode": "palette-classic"}
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {"mode": "multi"}
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "security-events",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Security Events Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10
+          },
+          "color": {"mode": "palette-classic"}
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": ["sum", "last"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {"mode": "multi"}
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            },
+            {
+              "field": "alert_type.keyword",
+              "id": "3",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "5"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "threat-alerts",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Threat Alerts by Type",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"}
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 12},
+      "id": 7,
+      "options": {
+        "displayLabels": ["percent"],
+        "legend": {
+          "calcs": ["sum", "percent"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "pieType": "donut"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "alert_type.keyword",
+              "id": "2",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "threat-alerts",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Attack Types Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 20},
+              {"color": "red", "value": 50}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 12},
+      "id": 8,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "source_ip.keyword",
+              "id": "2",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "security-events",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Top Source IPs",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 12},
+      "id": 9,
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "settings": {
+                "size": "10"
+              },
+              "type": "raw_document"
+            }
+          ],
+          "query": "threat-alerts",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Recent Threat Alerts",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 5},
+              {"color": "red", "value": 10}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 20},
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "ueba-alerts",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "UEBA Alerts",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "blue", "value": null},
+              {"color": "yellow", "value": 20},
+              {"color": "red", "value": 50}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 20},
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "threat-hunting-findings",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Threat Hunting Findings",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 50},
+              {"color": "red", "value": 100}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 20},
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "field": "failed_logins",
+              "id": "1",
+              "type": "sum"
+            }
+          ],
+          "query": "security-events",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Failed Login Attempts",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "orange", "value": 1},
+              {"color": "red", "value": 5}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 20},
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "security-events AND _exists_:malware_family",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Malware Detections",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"}
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24},
+      "id": 14,
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": {
+          "calcs": ["sum", "percent"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "pieType": "pie"
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "severity.keyword",
+              "id": "2",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "threat-alerts",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Severity Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 10},
+              {"color": "red", "value": 25}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24},
+      "id": 15,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "username.keyword",
+              "id": "2",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "security-events",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Top Targeted Users",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "blue", "value": null},
+              {"color": "yellow", "value": 15},
+              {"color": "red", "value": 30}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24},
+      "id": 16,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "destination_country.keyword",
+              "id": "2",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "P31C819B24CF3C3C7"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "security-events",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Geographic Threat Sources",
+      "type": "bargauge"
+    }
+  ],
   "refresh": "10s",
-  "uid": "ai-soc-overview",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["security", "ai-soc", "threats"],
+  "templating": {
+    "list": []
+  },
   "time": {
     "from": "now-6h",
     "to": "now"
   },
-  "timepicker": {
-    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
-  },
-  "panels": [
-    {
-      "id": 1,
-      "type": "stat",
-      "title": "Total Security Events",
-      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "security-events",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 100, "color": "yellow"},
-              {"value": 500, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value",
-        "graphMode": "area"
-      }
-    },
-    {
-      "id": 2,
-      "type": "stat",
-      "title": "Threats Detected",
-      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "threat-alerts",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 50, "color": "orange"},
-              {"value": 100, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value",
-        "graphMode": "area"
-      }
-    },
-    {
-      "id": 3,
-      "type": "stat",
-      "title": "High Priority Alerts",
-      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "threat-alerts AND severity:HIGH",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "blue"},
-              {"value": 10, "color": "yellow"},
-              {"value": 25, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value"
-      }
-    },
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "Average Risk Score",
-      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "avg",
-          "field": "risk_score",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "threat-alerts",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 50, "color": "yellow"},
-              {"value": 75, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short",
-          "decimals": 1
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value",
-        "graphMode": "area"
-      }
-    },
-    {
-      "id": 5,
-      "type": "timeseries",
-      "title": "Security Events Over Time",
-      "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "date_histogram",
-          "field": "@timestamp",
-          "id": "2",
-          "settings": {
-            "interval": "auto",
-            "min_doc_count": 0
-          }
-        }],
-        "query": "security-events",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 20,
-            "showPoints": "auto"
-          },
-          "color": {"mode": "palette-classic"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "tooltip": {"mode": "multi"},
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "id": 6,
-      "type": "timeseries",
-      "title": "Threat Alerts by Type",
-      "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "date_histogram",
-          "field": "@timestamp",
-          "id": "2",
-          "settings": {
-            "interval": "auto",
-            "min_doc_count": 0
-          }
-        }, {
-          "type": "terms",
-          "field": "alert_type.keyword",
-          "id": "3",
-          "settings": {
-            "size": "5",
-            "order": "desc",
-            "orderBy": "_count"
-          }
-        }],
-        "query": "threat-alerts",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 10,
-            "showPoints": "never"
-          },
-          "color": {"mode": "palette-classic"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "tooltip": {"mode": "multi"},
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "calcs": ["sum", "last"]
-        }
-      }
-    },
-    {
-      "id": 7,
-      "type": "piechart",
-      "title": "Attack Types Distribution",
-      "gridPos": {"x": 0, "y": 12, "w": 8, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "terms",
-          "field": "alert_type.keyword",
-          "id": "2",
-          "settings": {
-            "size": "10",
-            "order": "desc",
-            "orderBy": "_count"
-          }
-        }],
-        "query": "threat-alerts",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            }
-          },
-          "unit": "short"
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "calcs": ["sum", "percent"]
-        },
-        "pieType": "donut",
-        "tooltip": {"mode": "single"},
-        "displayLabels": ["percent"]
-      }
-    },
-    {
-      "id": 8,
-      "type": "bargauge",
-      "title": "Top Source IPs",
-      "gridPos": {"x": 8, "y": 12, "w": 8, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "terms",
-          "field": "source_ip.keyword",
-          "id": "2",
-          "settings": {
-            "size": "10",
-            "order": "desc",
-            "orderBy": "_count"
-          }
-        }],
-        "query": "security-events",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 20, "color": "yellow"},
-              {"value": 50, "color": "red"}
-            ]
-          },
-          "unit": "short"
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "showUnfilled": true
-      }
-    },
-    {
-      "id": 9,
-      "type": "table",
-      "title": "Recent Threat Alerts",
-      "gridPos": {"x": 16, "y": 12, "w": 8, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "raw_document",
-          "id": "1",
-          "settings": {
-            "size": "10"
-          }
-        }],
-        "bucketAggs": [{
-          "type": "date_histogram",
-          "field": "@timestamp",
-          "id": "2",
-          "settings": {
-            "interval": "auto"
-          }
-        }],
-        "query": "threat-alerts",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "left"
-          }
-        }
-      },
-      "options": {
-        "showHeader": true,
-        "sortBy": [{
-          "displayName": "@timestamp",
-          "desc": true
-        }]
-      }
-    },
-    {
-      "id": 10,
-      "type": "stat",
-      "title": "UEBA High-Risk Users",
-      "gridPos": {"x": 0, "y": 20, "w": 6, "h": 4},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "ueba-alerts",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 5, "color": "yellow"},
-              {"value": 10, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value"
-      }
-    },
-    {
-      "id": 11,
-      "type": "stat",
-      "title": "Threat Hunting Findings",
-      "gridPos": {"x": 6, "y": 20, "w": 6, "h": 4},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "threat-hunting-findings",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "blue"},
-              {"value": 20, "color": "yellow"},
-              {"value": 50, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value"
-      }
-    },
-    {
-      "id": 12,
-      "type": "stat",
-      "title": "Failed Login Attempts",
-      "gridPos": {"x": 12, "y": 20, "w": 6, "h": 4},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "sum",
-          "field": "failed_logins",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "security-events",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 50, "color": "yellow"},
-              {"value": 100, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value"
-      }
-    },
-    {
-      "id": 13,
-      "type": "stat",
-      "title": "Malware Detections",
-      "gridPos": {"x": 18, "y": 20, "w": 6, "h": 4},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "security-events AND _exists_:malware_family",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 1, "color": "orange"},
-              {"value": 5, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value"
-      }
-    },
-    {
-      "id": 14,
-      "type": "piechart",
-      "title": "Severity Distribution",
-      "gridPos": {"x": 0, "y": 24, "w": 8, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "terms",
-          "field": "severity.keyword",
-          "id": "2",
-          "settings": {
-            "size": "10",
-            "order": "desc",
-            "orderBy": "_count"
-          }
-        }],
-        "query": "threat-alerts",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            }
-          },
-          "unit": "short"
-        }
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "calcs": ["sum", "percent"]
-        },
-        "pieType": "pie",
-        "tooltip": {"mode": "single"},
-        "displayLabels": ["name", "percent"]
-      }
-    },
-    {
-      "id": 15,
-      "type": "bargauge",
-      "title": "Top Targeted Users",
-      "gridPos": {"x": 8, "y": 24, "w": 8, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "terms",
-          "field": "username.keyword",
-          "id": "2",
-          "settings": {
-            "size": "10",
-            "order": "desc",
-            "orderBy": "_count"
-          }
-        }],
-        "query": "security-events",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 10, "color": "yellow"},
-              {"value": 25, "color": "red"}
-            ]
-          },
-          "unit": "short"
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "showUnfilled": true
-      }
-    },
-    {
-      "id": 16,
-      "type": "bargauge",
-      "title": "Geographic Threat Sources",
-      "gridPos": {"x": 16, "y": 24, "w": 8, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "terms",
-          "field": "destination_country.keyword",
-          "id": "2",
-          "settings": {
-            "size": "10",
-            "order": "desc",
-            "orderBy": "_count"
-          }
-        }],
-        "query": "security-events",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "blue"},
-              {"value": 15, "color": "yellow"},
-              {"value": 30, "color": "red"}
-            ]
-          },
-          "unit": "short"
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "showUnfilled": true
-      }
-    },
-    {
-      "id": 17,
-      "type": "timeseries",
-      "title": "UEBA Risk Over Time",
-      "gridPos": {"x": 0, "y": 32, "w": 12, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "date_histogram",
-          "field": "@timestamp",
-          "id": "2",
-          "settings": {
-            "interval": "auto",
-            "min_doc_count": 0
-          }
-        }],
-        "query": "ueba-alerts",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 30,
-            "showPoints": "auto"
-          },
-          "color": {"mode": "palette-classic"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "tooltip": {"mode": "multi"},
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "id": 18,
-      "type": "table",
-      "title": "Threat Hunting Findings Detail",
-      "gridPos": {"x": 12, "y": 32, "w": 12, "h": 8},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "raw_document",
-          "id": "1",
-          "settings": {
-            "size": "10"
-          }
-        }],
-        "bucketAggs": [{
-          "type": "date_histogram",
-          "field": "@timestamp",
-          "id": "2",
-          "settings": {
-            "interval": "auto"
-          }
-        }],
-        "query": "threat-hunting-findings",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "left"
-          }
-        }
-      },
-      "options": {
-        "showHeader": true,
-        "sortBy": [{
-          "displayName": "@timestamp",
-          "desc": true
-        }]
-      }
-    },
-    {
-      "id": 19,
-      "type": "bargauge",
-      "title": "Top Protocols",
-      "gridPos": {"x": 0, "y": 40, "w": 8, "h": 6},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "terms",
-          "field": "protocol.keyword",
-          "id": "2",
-          "settings": {
-            "size": "10",
-            "order": "desc",
-            "orderBy": "_count"
-          }
-        }],
-        "query": "security-events",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 50, "color": "yellow"},
-              {"value": 100, "color": "orange"}
-            ]
-          },
-          "unit": "short"
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "showUnfilled": true
-      }
-    },
-    {
-      "id": 20,
-      "type": "table",
-      "title": "Malware Families Detected",
-      "gridPos": {"x": 8, "y": 40, "w": 8, "h": 6},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [{
-          "type": "terms",
-          "field": "malware_family.keyword",
-          "id": "2",
-          "settings": {
-            "size": "10",
-            "order": "desc",
-            "orderBy": "_count"
-          }
-        }],
-        "query": "security-events AND _exists_:malware_family",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "left"
-          }
-        }
-      },
-      "options": {
-        "showHeader": true
-      }
-    },
-    {
-      "id": 21,
-      "type": "stat",
-      "title": "Port Scans Detected",
-      "gridPos": {"x": 16, "y": 40, "w": 8, "h": 6},
-      "targets": [{
-        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
-        "refId": "A",
-        "metrics": [{
-          "type": "count",
-          "id": "1"
-        }],
-        "bucketAggs": [],
-        "query": "security-events AND scan_detected:true",
-        "timeField": "@timestamp"
-      }],
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"value": null, "color": "green"},
-              {"value": 5, "color": "yellow"},
-              {"value": 10, "color": "red"}
-            ]
-          },
-          "color": {"mode": "thresholds"},
-          "unit": "short"
-        }
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"]
-        },
-        "orientation": "auto",
-        "textMode": "value_and_name",
-        "colorMode": "value",
-        "graphMode": "area"
-      }
-    }
-  ]
+  "timepicker": {},
+  "timezone": "",
+  "title": "AI-Driven SOC - Security Overview",
+  "uid": "ai-soc-overview",
+  "version": 0,
+  "weekStart": ""
 }
