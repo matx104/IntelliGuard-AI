@@ -60,7 +60,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:security-events",
+          "query": "security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -118,7 +118,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:threat-alerts",
+          "query": "threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -175,7 +175,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:threat-alerts AND severity:HIGH",
+          "query": "threat-alerts AND severity:HIGH",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -235,7 +235,7 @@
               "type": "avg"
             }
           ],
-          "query": "_index:threat-alerts",
+          "query": "threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -291,7 +291,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:security-events",
+          "query": "security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -348,7 +348,7 @@
               "type": "avg"
             }
           ],
-          "query": "_index:threat-alerts",
+          "query": "threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -409,7 +409,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:security-events",
+          "query": "security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -471,7 +471,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:security-events",
+          "query": "security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -500,7 +500,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -514,7 +524,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "_index:threat-alerts",
+          "query": "threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -570,7 +580,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:ueba-alerts",
+          "query": "ueba-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -626,7 +636,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:threat-hunting-findings",
+          "query": "threat-hunting-findings",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -683,7 +693,7 @@
               "type": "sum"
             }
           ],
-          "query": "_index:security-events",
+          "query": "security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -739,7 +749,7 @@
               "type": "count"
             }
           ],
-          "query": "_index:security-events AND _exists_:malware_family",
+          "query": "security-events AND _exists_:malware_family",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -773,7 +783,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -787,7 +807,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "_index:security-events",
+          "query": "security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -821,7 +841,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -835,7 +865,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "_index:threat-alerts",
+          "query": "threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -869,7 +899,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -883,7 +923,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "_index:security-events AND event_type:authentication",
+          "query": "security-events AND event_type:authentication",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -917,7 +957,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -931,7 +981,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "risk_score:>50",
+          "query": "security-events AND risk_score:>50",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -965,7 +1015,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -979,7 +1039,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "_index:security-events AND (status:failed OR failed_logins:>0)",
+          "query": "security-events AND (status:failed OR failed_logins:>0)",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -1013,7 +1073,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -1027,7 +1097,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "_index:ueba-alerts",
+          "query": "ueba-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -1061,7 +1131,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -1092,13 +1172,13 @@
     "list": []
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "AI-Driven SOC - Security Overview with Logs",
-  "uid": "ai-soc-main-with-logs-v2",
+  "uid": "ai-soc-main-with-logs-v3",
   "version": 0,
   "weekStart": ""
 }
