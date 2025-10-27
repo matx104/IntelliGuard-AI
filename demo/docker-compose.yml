@@ -1,0 +1,245 @@
+version: '3.8'
+
+services:
+  # Elasticsearch for data storage
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: soc-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - soc-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Wazuh Manager (SIEM)
+  wazuh:
+    image: wazuh/wazuh:4.7.0
+    container_name: soc-wazuh
+    hostname: wazuh-manager
+    restart: always
+    ports:
+      - "1514:1514/udp"
+      - "1515:1515"
+      - "514:514/udp"
+      - "55000:55000"
+    environment:
+      - INDEXER_URL=https://wazuh-indexer:9200
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=admin
+      - FILEBEAT_SSL_VERIFICATION_MODE=none
+    volumes:
+      - wazuh-data:/var/ossec/data
+      - wazuh-logs:/var/ossec/logs
+      - ./wazuh-config:/wazuh-config-mount
+    networks:
+      - soc-network
+
+  # TheHive (SOAR Platform)
+  cassandra:
+    image: cassandra:4.1
+    container_name: soc-cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TheHive
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=200M
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    networks:
+      - soc-network
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  thehive:
+    image: strangebee/thehive:5.2
+    container_name: soc-thehive
+    depends_on:
+      - cassandra
+      - elasticsearch
+    ports:
+      - "9000:9000"
+    environment:
+      - TH_NO_CONFIG_CORTEX=1
+    volumes:
+      - thehive-data:/opt/thp/thehive/data
+      - thehive-files:/opt/thp/thehive/files
+      - ./thehive-config/application.conf:/etc/thehive/application.conf
+    networks:
+      - soc-network
+    command: "--no-config-secret"
+
+  # Cortex (Analysis Engine for TheHive)
+  cortex:
+    image: thehiveproject/cortex:3.1.7
+    container_name: soc-cortex
+    depends_on:
+      - elasticsearch
+    ports:
+      - "9001:9001"
+    environment:
+      - ES_HOSTNAME=elasticsearch
+      - ES_PORT=9200
+    volumes:
+      - cortex-data:/opt/cortex/data
+      - ./cortex-config/application.conf:/etc/cortex/application.conf
+    networks:
+      - soc-network
+
+  # MISP (Threat Intelligence Platform)
+  misp-db:
+    image: mysql:8.0
+    container_name: soc-misp-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=misp_root_password
+      - MYSQL_DATABASE=misp
+      - MYSQL_USER=misp
+      - MYSQL_PASSWORD=misp_password
+    volumes:
+      - misp-db-data:/var/lib/mysql
+    networks:
+      - soc-network
+
+  misp:
+    image: coolacid/misp-docker:core-latest
+    container_name: soc-misp
+    depends_on:
+      - misp-db
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      - MYSQL_HOST=misp-db
+      - MYSQL_DATABASE=misp
+      - MYSQL_USER=misp
+      - MYSQL_PASSWORD=misp_password
+      - MISP_ADMIN_EMAIL=admin@misp.local
+      - MISP_ADMIN_PASSPHRASE=admin_password
+      - MISP_BASEURL=http://localhost:8080
+    volumes:
+      - misp-data:/var/www/MISP
+    networks:
+      - soc-network
+
+  # Grafana for Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: soc-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-config/provisioning:/etc/grafana/provisioning
+    networks:
+      - soc-network
+    depends_on:
+      - elasticsearch
+
+  # ML Threat Detection Service
+  ml-threat-detector:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: soc-ml-detector
+    depends_on:
+      - elasticsearch
+    environment:
+      - ES_HOST=elasticsearch
+      - ES_PORT=9200
+    volumes:
+      - ./ml-service:/app
+      - ml-models:/models
+    networks:
+      - soc-network
+    command: python /app/threat_detector.py
+
+  # Automated Threat Hunting Service
+  threat-hunter:
+    build:
+      context: ./threat-hunting
+      dockerfile: Dockerfile
+    container_name: soc-threat-hunter
+    depends_on:
+      - elasticsearch
+      - thehive
+    environment:
+      - ES_HOST=elasticsearch
+      - ES_PORT=9200
+      - THEHIVE_URL=http://thehive:9000
+      - THEHIVE_API_KEY=your-api-key-here
+    volumes:
+      - ./threat-hunting:/app
+    networks:
+      - soc-network
+    command: python /app/automated_hunter.py
+
+  # SOAR Automation Service
+  soar-automation:
+    build:
+      context: ./soar-automation
+      dockerfile: Dockerfile
+    container_name: soc-soar
+    depends_on:
+      - thehive
+      - cortex
+    environment:
+      - THEHIVE_URL=http://thehive:9000
+      - THEHIVE_API_KEY=your-api-key-here
+      - CORTEX_URL=http://cortex:9001
+      - CORTEX_API_KEY=your-cortex-api-key
+    volumes:
+      - ./soar-automation:/app
+    networks:
+      - soc-network
+    command: python /app/soar_engine.py
+
+  # Sample Data Generator
+  data-generator:
+    build:
+      context: ./data-generator
+      dockerfile: Dockerfile
+    container_name: soc-data-generator
+    depends_on:
+      - elasticsearch
+      - wazuh
+    environment:
+      - ES_HOST=elasticsearch
+      - ES_PORT=9200
+      - WAZUH_HOST=wazuh
+      - WAZUH_PORT=1514
+    volumes:
+      - ./data-generator:/app
+    networks:
+      - soc-network
+    command: python /app/generate_events.py
+
+volumes:
+  es-data:
+  wazuh-data:
+  wazuh-logs:
+  cassandra-data:
+  thehive-data:
+  thehive-files:
+  cortex-data:
+  misp-db-data:
+  misp-data:
+  grafana-data:
+  ml-models:
+
+networks:
+  soc-network:
+    driver: bridge
