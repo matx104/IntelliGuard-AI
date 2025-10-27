@@ -4,7 +4,6 @@ datasources:
     type: elasticsearch
     access: proxy
     url: http://elasticsearch:9200
-    database: "security-events,threat-alerts,ueba-alerts,threat-hunting-findings"
     isDefault: true
     editable: true
     jsonData:
