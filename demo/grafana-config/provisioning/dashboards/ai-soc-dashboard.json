@@ -60,7 +60,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -118,7 +118,7 @@
               "type": "count"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -175,7 +175,7 @@
               "type": "count"
             }
           ],
-          "query": "threat-alerts AND severity:HIGH",
+          "query": "_index:threat-alerts AND severity:HIGH",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -235,7 +235,7 @@
               "type": "avg"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -291,7 +291,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -348,7 +348,7 @@
               "type": "avg"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -409,7 +409,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -471,7 +471,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -500,17 +500,7 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -524,7 +514,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -580,7 +570,7 @@
               "type": "count"
             }
           ],
-          "query": "ueba-alerts",
+          "query": "_index:ueba-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -636,7 +626,7 @@
               "type": "count"
             }
           ],
-          "query": "threat-hunting-findings",
+          "query": "_index:threat-hunting-findings",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -693,7 +683,7 @@
               "type": "sum"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -749,7 +739,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events AND _exists_:malware_family",
+          "query": "_index:security-events AND _exists_:malware_family",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -762,31 +752,28 @@
         "type": "elasticsearch",
         "uid": "P31C819B24CF3C3C7"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
+      },
       "gridPos": {"h": 10, "w": 12, "x": 0, "y": 24},
       "id": 14,
       "options": {
-        "showTime": true,
-        "showLabels": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "dedupStrategy": "none"
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "@timestamp"
+          }
+        ]
       },
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -797,47 +784,44 @@
               "settings": {
                 "size": "100"
               },
-              "type": "logs"
+              "type": "raw_document"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
       ],
-      "title": "Recent Security Events - Live Logs",
-      "type": "logs"
+      "title": "Recent Security Events - Raw Logs",
+      "type": "table"
     },
     {
       "datasource": {
         "type": "elasticsearch",
         "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
       },
       "gridPos": {"h": 10, "w": 12, "x": 12, "y": 24},
       "id": 15,
       "options": {
-        "showTime": true,
-        "showLabels": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "dedupStrategy": "none"
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "@timestamp"
+          }
+        ]
       },
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -848,47 +832,44 @@
               "settings": {
                 "size": "100"
               },
-              "type": "logs"
+              "type": "raw_document"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
       ],
-      "title": "Threat Alerts - Live Logs",
-      "type": "logs"
+      "title": "Threat Alerts - Raw Logs",
+      "type": "table"
     },
     {
       "datasource": {
         "type": "elasticsearch",
         "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
       },
       "gridPos": {"h": 10, "w": 12, "x": 0, "y": 34},
       "id": 16,
       "options": {
-        "showTime": true,
-        "showLabels": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "dedupStrategy": "none"
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "@timestamp"
+          }
+        ]
       },
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -899,47 +880,44 @@
               "settings": {
                 "size": "100"
               },
-              "type": "logs"
+              "type": "raw_document"
             }
           ],
-          "query": "event_type:authentication",
+          "query": "_index:security-events AND event_type:authentication",
           "refId": "A",
           "timeField": "@timestamp"
         }
       ],
-      "title": "Authentication Events - Live Logs",
-      "type": "logs"
+      "title": "Authentication Events - Raw Logs",
+      "type": "table"
     },
     {
       "datasource": {
         "type": "elasticsearch",
         "uid": "P31C819B24CF3C3C7"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
+      },
       "gridPos": {"h": 10, "w": 12, "x": 12, "y": 34},
       "id": 17,
       "options": {
-        "showTime": true,
-        "showLabels": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "dedupStrategy": "none"
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "@timestamp"
+          }
+        ]
       },
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -950,7 +928,7 @@
               "settings": {
                 "size": "100"
               },
-              "type": "logs"
+              "type": "raw_document"
             }
           ],
           "query": "risk_score:>50",
@@ -958,39 +936,36 @@
           "timeField": "@timestamp"
         }
       ],
-      "title": "High Risk Activity - Live Logs",
-      "type": "logs"
+      "title": "High Risk Activity - Raw Logs",
+      "type": "table"
     },
     {
       "datasource": {
         "type": "elasticsearch",
         "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
       },
       "gridPos": {"h": 10, "w": 12, "x": 0, "y": 44},
       "id": 18,
       "options": {
-        "showTime": true,
-        "showLabels": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "dedupStrategy": "none"
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "@timestamp"
+          }
+        ]
       },
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -1001,47 +976,44 @@
               "settings": {
                 "size": "100"
               },
-              "type": "logs"
+              "type": "raw_document"
             }
           ],
-          "query": "status:failed OR failed_logins:>0",
+          "query": "_index:security-events AND (status:failed OR failed_logins:>0)",
           "refId": "A",
           "timeField": "@timestamp"
         }
       ],
-      "title": "Failed Login Attempts - Live Logs",
-      "type": "logs"
+      "title": "Failed Login Attempts - Raw Logs",
+      "type": "table"
     },
     {
       "datasource": {
         "type": "elasticsearch",
         "uid": "P31C819B24CF3C3C7"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
       },
       "gridPos": {"h": 10, "w": 12, "x": 12, "y": 44},
       "id": 19,
       "options": {
-        "showTime": true,
-        "showLabels": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "dedupStrategy": "none"
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "@timestamp"
+          }
+        ]
       },
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -1052,47 +1024,44 @@
               "settings": {
                 "size": "100"
               },
-              "type": "logs"
+              "type": "raw_document"
             }
           ],
-          "query": "ueba-alerts",
+          "query": "_index:ueba-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
       ],
-      "title": "UEBA Alerts - Live Logs",
-      "type": "logs"
+      "title": "UEBA Alerts - Raw Logs",
+      "type": "table"
     },
     {
       "datasource": {
         "type": "elasticsearch",
         "uid": "P31C819B24CF3C3C7"
       },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        }
+      },
       "gridPos": {"h": 12, "w": 24, "x": 0, "y": 54},
       "id": 20,
       "options": {
-        "showTime": true,
-        "showLabels": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "prettifyLogMessage": true,
-        "enableLogDetails": true,
-        "dedupStrategy": "none"
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "@timestamp"
+          }
+        ]
       },
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -1101,9 +1070,9 @@
             {
               "id": "1",
               "settings": {
-                "size": "500"
+                "size": "200"
               },
-              "type": "logs"
+              "type": "raw_document"
             }
           ],
           "query": "*",
@@ -1112,7 +1081,7 @@
         }
       ],
       "title": "All Events - Raw Log Stream",
-      "type": "logs"
+      "type": "table"
     }
   ],
   "refresh": "10s",
@@ -1129,7 +1098,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "AI-Driven SOC - Security Overview with Logs",
-  "uid": "ai-soc-main-with-logs",
+  "uid": "ai-soc-main-with-logs-v2",
   "version": 0,
   "weekStart": ""
 }
