@@ -1,508 +1,419 @@
 {
-  "dashboard": {
-    "title": "AI-Driven SOC - Security Overview",
-    "tags": ["ai-soc", "security", "threats"],
-    "timezone": "browser",
-    "schemaVersion": 16,
-    "version": 0,
-    "refresh": "10s",
-    "time": {
-      "from": "now-1h",
-      "to": "now"
+  "title": "AI-Driven SOC - Security Overview",
+  "tags": ["ai-soc", "security", "threats"],
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 0,
+  "refresh": "10s",
+  "uid": "ai-soc-overview",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total Security Events",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "count",
+          "id": "1"
+        }],
+        "bucketAggs": [],
+        "query": "security-events",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 100, "color": "yellow"},
+              {"value": 500, "color": "red"}
+            ]
+          },
+          "color": {"mode": "thresholds"},
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "area"
+      }
     },
-    "timepicker": {
-      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Threats Detected",
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "count",
+          "id": "1"
+        }],
+        "bucketAggs": [],
+        "query": "threat-alerts",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 50, "color": "orange"},
+              {"value": 100, "color": "red"}
+            ]
+          },
+          "color": {"mode": "thresholds"},
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "area"
+      }
     },
-    "panels": [
-      {
-        "id": 1,
-        "type": "stat",
-        "title": "Total Security Events",
-        "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"find\": \"terms\", \"field\": \"_index\"}",
-          "metrics": [{
-            "type": "count",
-            "id": "1"
-          }],
-          "bucketAggs": [],
-          "timeField": "@timestamp"
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "High Priority Alerts",
+      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "count",
+          "id": "1"
         }],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"value": 0, "color": "green"},
-                {"value": 100, "color": "yellow"},
-                {"value": 500, "color": "red"}
-              ]
-            },
-            "color": {"mode": "thresholds"},
-            "unit": "short"
-          }
-        },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
+        "bucketAggs": [],
+        "query": "{\"query\": {\"term\": {\"severity.keyword\": \"HIGH\"}}}",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "blue"},
+              {"value": 10, "color": "yellow"},
+              {"value": 25, "color": "red"}
+            ]
           },
-          "orientation": "auto",
-          "textMode": "value_and_name",
-          "colorMode": "value",
-          "graphMode": "area"
+          "color": {"mode": "thresholds"},
+          "unit": "short"
         }
       },
-      {
-        "id": 2,
-        "type": "stat",
-        "title": "Threats Detected",
-        "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"find\": \"terms\", \"field\": \"alert_type.keyword\"}",
-          "metrics": [{
-            "type": "count",
-            "id": "1"
-          }],
-          "bucketAggs": [],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"value": 0, "color": "green"},
-                {"value": 50, "color": "orange"},
-                {"value": 100, "color": "red"}
-              ]
-            },
-            "color": {"mode": "thresholds"},
-            "unit": "short"
-          }
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
         },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Average Risk Score",
+      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "avg",
+          "field": "risk_score",
+          "id": "1"
+        }],
+        "bucketAggs": [],
+        "query": "threat-alerts",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 50, "color": "yellow"},
+              {"value": 75, "color": "red"}
+            ]
           },
-          "orientation": "auto",
-          "textMode": "value_and_name",
-          "colorMode": "value",
-          "graphMode": "area"
+          "color": {"mode": "thresholds"},
+          "unit": "short",
+          "decimals": 1
         }
       },
-      {
-        "id": 3,
-        "type": "stat",
-        "title": "MITRE Techniques Detected",
-        "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"find\": \"terms\", \"field\": \"mitre_technique.keyword\"}",
-          "metrics": [{
-            "type": "cardinality",
-            "field": "mitre_technique.keyword",
-            "id": "1"
-          }],
-          "bucketAggs": [],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"value": 0, "color": "blue"},
-                {"value": 3, "color": "yellow"},
-                {"value": 5, "color": "red"}
-              ]
-            },
-            "color": {"mode": "thresholds"},
-            "unit": "short"
-          }
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
         },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "area"
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Security Events Over Time",
+      "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "count",
+          "id": "1"
+        }],
+        "bucketAggs": [{
+          "type": "date_histogram",
+          "field": "@timestamp",
+          "id": "2",
+          "settings": {
+            "interval": "auto",
+            "min_doc_count": 0
+          }
+        }],
+        "query": "security-events",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 20,
+            "showPoints": "auto"
           },
-          "orientation": "auto",
-          "textMode": "value_and_name",
-          "colorMode": "value"
+          "color": {"mode": "palette-classic"},
+          "unit": "short"
         }
       },
-      {
-        "id": 4,
-        "type": "stat",
-        "title": "Average Risk Score",
-        "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "",
-          "metrics": [{
-            "type": "avg",
-            "field": "risk_score",
-            "id": "1"
-          }],
-          "bucketAggs": [],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"value": 0, "color": "green"},
-                {"value": 50, "color": "yellow"},
-                {"value": 75, "color": "red"}
-              ]
-            },
-            "color": {"mode": "thresholds"},
-            "unit": "short",
-            "decimals": 1
-          }
-        },
-        "options": {
-          "reduceOptions": {
-            "values": false,
-            "calcs": ["lastNotNull"]
-          },
-          "orientation": "auto",
-          "textMode": "value_and_name",
-          "colorMode": "value",
-          "graphMode": "area"
-        }
-      },
-      {
-        "id": 5,
-        "type": "timeseries",
-        "title": "Security Events Over Time",
-        "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "",
-          "metrics": [{
-            "type": "count",
-            "id": "1"
-          }],
-          "bucketAggs": [{
-            "type": "date_histogram",
-            "field": "@timestamp",
-            "id": "2",
-            "settings": {
-              "interval": "auto",
-              "min_doc_count": 0
-            }
-          }],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "fillOpacity": 20,
-              "showPoints": "auto"
-            },
-            "color": {"mode": "palette-classic"},
-            "unit": "short"
-          }
-        },
-        "options": {
-          "tooltip": {"mode": "multi"},
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          }
-        }
-      },
-      {
-        "id": 6,
-        "type": "timeseries",
-        "title": "Threat Alerts Over Time",
-        "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"query\": {\"bool\": {\"must\": [{\"exists\": {\"field\": \"alert_type\"}}]}}}",
-          "metrics": [{
-            "type": "count",
-            "id": "1"
-          }],
-          "bucketAggs": [{
-            "type": "date_histogram",
-            "field": "@timestamp",
-            "id": "2",
-            "settings": {
-              "interval": "auto",
-              "min_doc_count": 0
-            }
-          }, {
-            "type": "terms",
-            "field": "alert_type.keyword",
-            "id": "3",
-            "settings": {
-              "size": "10",
-              "order": "desc",
-              "orderBy": "_count"
-            }
-          }],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "fillOpacity": 10,
-              "showPoints": "never"
-            },
-            "color": {"mode": "palette-classic"},
-            "unit": "short"
-          }
-        },
-        "options": {
-          "tooltip": {"mode": "multi"},
-          "legend": {
-            "displayMode": "table",
-            "placement": "right",
-            "calcs": ["sum", "last"]
-          }
-        }
-      },
-      {
-        "id": 7,
-        "type": "piechart",
-        "title": "Attack Types Distribution",
-        "gridPos": {"x": 0, "y": 12, "w": 8, "h": 8},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"query\": {\"bool\": {\"must\": [{\"exists\": {\"field\": \"alert_type\"}}]}}}",
-          "metrics": [{
-            "type": "count",
-            "id": "1"
-          }],
-          "bucketAggs": [{
-            "type": "terms",
-            "field": "alert_type.keyword",
-            "id": "2",
-            "settings": {
-              "size": "10",
-              "order": "desc",
-              "orderBy": "_count"
-            }
-          }],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "color": {"mode": "palette-classic"},
-            "custom": {
-              "hideFrom": {
-                "tooltip": false,
-                "viz": false,
-                "legend": false
-              }
-            },
-            "unit": "short"
-          }
-        },
-        "options": {
-          "legend": {
-            "displayMode": "table",
-            "placement": "right",
-            "calcs": ["sum", "percent"]
-          },
-          "pieType": "donut",
-          "tooltip": {"mode": "single"},
-          "displayLabels": ["percent"]
-        }
-      },
-      {
-        "id": 8,
-        "type": "bargauge",
-        "title": "Top 10 Source IPs by Event Count",
-        "gridPos": {"x": 8, "y": 12, "w": 8, "h": 8},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"query\": {\"bool\": {\"must\": [{\"exists\": {\"field\": \"source_ip\"}}]}}}",
-          "metrics": [{
-            "type": "count",
-            "id": "1"
-          }],
-          "bucketAggs": [{
-            "type": "terms",
-            "field": "source_ip.keyword",
-            "id": "2",
-            "settings": {
-              "size": "10",
-              "order": "desc",
-              "orderBy": "_count"
-            }
-          }],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"value": 0, "color": "green"},
-                {"value": 20, "color": "yellow"},
-                {"value": 50, "color": "red"}
-              ]
-            },
-            "unit": "short"
-          }
-        },
-        "options": {
-          "orientation": "horizontal",
-          "displayMode": "gradient",
-          "showUnfilled": true
-        }
-      },
-      {
-        "id": 9,
-        "type": "table",
-        "title": "MITRE ATT&CK Techniques Detected",
-        "gridPos": {"x": 16, "y": 12, "w": 8, "h": 8},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"query\": {\"bool\": {\"must\": [{\"exists\": {\"field\": \"mitre_technique\"}}]}}}",
-          "metrics": [{
-            "type": "count",
-            "id": "1"
-          }],
-          "bucketAggs": [{
-            "type": "terms",
-            "field": "mitre_technique.keyword",
-            "id": "2",
-            "settings": {
-              "size": "10",
-              "order": "desc",
-              "orderBy": "_count"
-            }
-          }, {
-            "type": "terms",
-            "field": "technique_details.name.keyword",
-            "id": "3",
-            "settings": {
-              "size": "1",
-              "order": "desc",
-              "orderBy": "_count"
-            }
-          }],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "align": "left"
-            }
-          }
-        },
-        "options": {
-          "showHeader": true,
-          "sortBy": [{
-            "displayName": "Count",
-            "desc": true
-          }]
-        }
-      },
-      {
-        "id": 10,
-        "type": "stat",
-        "title": "UEBA High Risk Users",
-        "gridPos": {"x": 0, "y": 20, "w": 6, "h": 4},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"query\": {\"bool\": {\"must\": [{\"term\": {\"risk_level.keyword\": \"HIGH\"}}, {\"exists\": {\"field\": \"username\"}}]}}}",
-          "metrics": [{
-            "type": "cardinality",
-            "field": "username.keyword",
-            "id": "1"
-          }],
-          "bucketAggs": [],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "color": {"mode": "thresholds"},
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"value": 0, "color": "green"},
-                {"value": 1, "color": "yellow"},
-                {"value": 3, "color": "red"}
-              ]
-            }
-          }
-        },
-        "options": {
-          "colorMode": "value",
-          "graphMode": "none",
-          "textMode": "value_and_name"
-        }
-      },
-      {
-        "id": 11,
-        "type": "timeseries",
-        "title": "Anomaly Scores Over Time",
-        "gridPos": {"x": 6, "y": 20, "w": 18, "h": 6},
-        "targets": [{
-          "datasource": "Elasticsearch",
-          "query": "{\"query\": {\"bool\": {\"must\": [{\"exists\": {\"field\": \"anomaly_score\"}}]}}}",
-          "metrics": [{
-            "type": "avg",
-            "field": "anomaly_score",
-            "id": "1"
-          }, {
-            "type": "max",
-            "field": "anomaly_score",
-            "id": "2"
-          }],
-          "bucketAggs": [{
-            "type": "date_histogram",
-            "field": "@timestamp",
-            "id": "3",
-            "settings": {
-              "interval": "auto",
-              "min_doc_count": 0
-            }
-          }],
-          "timeField": "@timestamp"
-        }],
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "drawStyle": "line",
-              "lineInterpolation": "smooth",
-              "fillOpacity": 20
-            },
-            "color": {"mode": "palette-classic"},
-            "unit": "short"
-          }
-        },
-        "options": {
-          "tooltip": {"mode": "multi"},
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          }
+      "options": {
+        "tooltip": {"mode": "multi"},
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
         }
       }
-    ]
-  },
-  "overwrite": true,
-  "inputs": [],
-  "folderId": 0
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Threat Alerts by Type",
+      "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "count",
+          "id": "1"
+        }],
+        "bucketAggs": [{
+          "type": "date_histogram",
+          "field": "@timestamp",
+          "id": "2",
+          "settings": {
+            "interval": "auto",
+            "min_doc_count": 0
+          }
+        }, {
+          "type": "terms",
+          "field": "alert_type.keyword",
+          "id": "3",
+          "settings": {
+            "size": "5",
+            "order": "desc",
+            "orderBy": "_count"
+          }
+        }],
+        "query": "threat-alerts",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10,
+            "showPoints": "never"
+          },
+          "color": {"mode": "palette-classic"},
+          "unit": "short"
+        }
+      },
+      "options": {
+        "tooltip": {"mode": "multi"},
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["sum", "last"]
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "piechart",
+      "title": "Attack Types Distribution",
+      "gridPos": {"x": 0, "y": 12, "w": 8, "h": 8},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "count",
+          "id": "1"
+        }],
+        "bucketAggs": [{
+          "type": "terms",
+          "field": "alert_type.keyword",
+          "id": "2",
+          "settings": {
+            "size": "10",
+            "order": "desc",
+            "orderBy": "_count"
+          }
+        }],
+        "query": "threat-alerts",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
+          },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["sum", "percent"]
+        },
+        "pieType": "donut",
+        "tooltip": {"mode": "single"},
+        "displayLabels": ["percent"]
+      }
+    },
+    {
+      "id": 8,
+      "type": "bargauge",
+      "title": "Top Source IPs",
+      "gridPos": {"x": 8, "y": 12, "w": 8, "h": 8},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "count",
+          "id": "1"
+        }],
+        "bucketAggs": [{
+          "type": "terms",
+          "field": "source_ip.keyword",
+          "id": "2",
+          "settings": {
+            "size": "10",
+            "order": "desc",
+            "orderBy": "_count"
+          }
+        }],
+        "query": "security-events",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 20, "color": "yellow"},
+              {"value": 50, "color": "red"}
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true
+      }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Recent Threat Alerts",
+      "gridPos": {"x": 16, "y": 12, "w": 8, "h": 8},
+      "targets": [{
+        "datasource": {"type": "elasticsearch", "uid": "P31C819B24CF3C3C7"},
+        "refId": "A",
+        "metrics": [{
+          "type": "raw_data",
+          "id": "1"
+        }],
+        "bucketAggs": [{
+          "type": "date_histogram",
+          "field": "@timestamp",
+          "id": "2",
+          "settings": {
+            "interval": "auto"
+          }
+        }],
+        "query": "threat-alerts",
+        "timeField": "@timestamp"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left"
+          }
+        }
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [{
+          "displayName": "@timestamp",
+          "desc": true
+        }]
+      }
+    }
+  ]
 }
