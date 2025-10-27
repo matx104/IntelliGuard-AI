@@ -39,7 +39,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -87,7 +97,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -129,13 +149,22 @@
       "id": 3,
       "options": {
         "colorMode": "value",
-        "graphMode": "none",
         "textMode": "value_and_name"
       },
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -184,7 +213,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -457,7 +496,8 @@
       "gridPos": {"h": 8, "w": 8, "x": 16, "y": 12},
       "id": 9,
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": []
       },
       "targets": [
         {
@@ -467,7 +507,8 @@
               "field": "@timestamp",
               "id": "2",
               "settings": {
-                "interval": "auto"
+                "interval": "auto",
+                "min_doc_count": "0"
               },
               "type": "date_histogram"
             }
@@ -520,7 +561,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -566,7 +617,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -612,7 +673,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -659,7 +730,17 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
           "datasource": {
             "type": "elasticsearch",
             "uid": "P31C819B24CF3C3C7"
@@ -677,196 +758,23 @@
       ],
       "title": "Malware Detections",
       "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "elasticsearch",
-        "uid": "P31C819B24CF3C3C7"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"}
-        }
-      },
-      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24},
-      "id": 14,
-      "options": {
-        "displayLabels": ["name", "percent"],
-        "legend": {
-          "calcs": ["sum", "percent"],
-          "displayMode": "table",
-          "placement": "right"
-        },
-        "pieType": "pie"
-      },
-      "targets": [
-        {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "severity.keyword",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_count",
-                "size": "10"
-              },
-              "type": "terms"
-            }
-          ],
-          "datasource": {
-            "type": "elasticsearch",
-            "uid": "P31C819B24CF3C3C7"
-          },
-          "metrics": [
-            {
-              "id": "1",
-              "type": "count"
-            }
-          ],
-          "query": "threat-alerts",
-          "refId": "A",
-          "timeField": "@timestamp"
-        }
-      ],
-      "title": "Severity Distribution",
-      "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "elasticsearch",
-        "uid": "P31C819B24CF3C3C7"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "thresholds"},
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 10},
-              {"color": "red", "value": 25}
-            ]
-          }
-        }
-      },
-      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24},
-      "id": 15,
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
-        "showUnfilled": true
-      },
-      "targets": [
-        {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "username.keyword",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_count",
-                "size": "10"
-              },
-              "type": "terms"
-            }
-          ],
-          "datasource": {
-            "type": "elasticsearch",
-            "uid": "P31C819B24CF3C3C7"
-          },
-          "metrics": [
-            {
-              "id": "1",
-              "type": "count"
-            }
-          ],
-          "query": "security-events",
-          "refId": "A",
-          "timeField": "@timestamp"
-        }
-      ],
-      "title": "Top Targeted Users",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "elasticsearch",
-        "uid": "P31C819B24CF3C3C7"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "thresholds"},
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"color": "blue", "value": null},
-              {"color": "yellow", "value": 15},
-              {"color": "red", "value": 30}
-            ]
-          }
-        }
-      },
-      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24},
-      "id": 16,
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
-        "showUnfilled": true
-      },
-      "targets": [
-        {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "destination_country.keyword",
-              "id": "2",
-              "settings": {
-                "min_doc_count": "1",
-                "order": "desc",
-                "orderBy": "_count",
-                "size": "10"
-              },
-              "type": "terms"
-            }
-          ],
-          "datasource": {
-            "type": "elasticsearch",
-            "uid": "P31C819B24CF3C3C7"
-          },
-          "metrics": [
-            {
-              "id": "1",
-              "type": "count"
-            }
-          ],
-          "query": "security-events",
-          "refId": "A",
-          "timeField": "@timestamp"
-        }
-      ],
-      "title": "Geographic Threat Sources",
-      "type": "bargauge"
     }
   ],
   "refresh": "10s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["security", "ai-soc", "threats"],
+  "tags": ["security", "ai-soc"],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "AI-Driven SOC - Security Overview",
-  "uid": "ai-soc-overview",
+  "uid": "ai-soc-main-v2",
   "version": 0,
   "weekStart": ""
 }
