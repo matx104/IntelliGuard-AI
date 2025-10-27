@@ -1,4 +1,4 @@
-# TheHive Configuration
+include "application"
 
 ## Database Configuration
 db {
@@ -37,6 +37,3 @@ auth {
     {name: local}
   ]
 }
-
-## Service Configuration
-play.http.secret.key = "ThiSisASeCretKeYForTheHive"
