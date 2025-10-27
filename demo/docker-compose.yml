@@ -127,6 +127,7 @@ services:
       - MISP_ADMIN_EMAIL=admin@misp.local
       - MISP_ADMIN_PASSPHRASE=admin_password
       - MISP_BASEURL=http://localhost:8080
+      - CRON_USER_ID=1000
     volumes:
       - misp-data:/var/www/MISP
     networks:
