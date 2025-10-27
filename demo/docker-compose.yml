@@ -23,7 +23,7 @@ services:
 
   # Wazuh Manager (SIEM)
   wazuh:
-    image: wazuh/wazuh:4.14.0
+    image: wazuh/wazuh:4.2.7
     container_name: soc-wazuh
     hostname: wazuh-manager
     restart: always
