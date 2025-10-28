@@ -11,5 +11,4 @@ datasources:
       esVersion: "8.0.0"
       logMessageField: message
       logLevelField: level
-      interval: Daily
       maxConcurrentShardRequests: 5
