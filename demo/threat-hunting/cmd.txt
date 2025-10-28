@@ -1,7 +1,0 @@
-docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py
-
-# 500 UEBA alerts + 2000 threat hunting findings
-docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 500 --hunting 2000
-
-# Spread over 6 hours instead of 24
-docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 200 --hunting 1000 --hours 6
