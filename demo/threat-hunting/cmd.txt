@@ -1,0 +1,1 @@
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py
