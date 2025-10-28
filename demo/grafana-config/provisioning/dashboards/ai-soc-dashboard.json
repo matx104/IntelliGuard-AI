@@ -617,7 +617,7 @@
           "alias": "",
           "bucketAggs": [
             {
-              "field": "@timestamp",
+              "field": "timestamp",
               "id": "2",
               "settings": {
                 "interval": "auto",
@@ -673,7 +673,7 @@
           "alias": "",
           "bucketAggs": [
             {
-              "field": "@timestamp",
+              "field": "timestamp",
               "id": "2",
               "settings": {
                 "interval": "auto",
