@@ -1,0 +1,3 @@
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 500
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 5000
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 50000
