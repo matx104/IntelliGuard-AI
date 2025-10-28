@@ -1,3 +1,150 @@
+# =============================================================================
+# BULK SECURITY EVENT GENERATOR COMMANDS
+# =============================================================================
+
+# Quick Test Dataset (500 events per type = 3,000 total)
 docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 500
+
+# Medium Dataset (5,000 events per type = 30,000 total)
 docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 5000
+
+# Large Dataset (50,000 events per type = 300,000 total)
 docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 50000
+
+# Historical Data Generation - Different Time Periods
+# ====================================================
+
+# Last 24 hours (default)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 1000 --hours 24
+
+# Last 7 days (168 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 2000 --hours 168
+
+# Last 30 days (720 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 5000 --hours 720
+
+# Last 60 days (1,440 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 8000 --hours 1440
+
+# Last 90 days (2,160 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 10000 --hours 2160
+
+# Last 120 days (2,880 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 12000 --hours 2880
+
+# Last 6 months (4,320 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 15000 --hours 4320
+
+# Last 1 year (8,760 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 20000 --hours 8760
+
+# =============================================================================
+# BULK THREAT INTELLIGENCE GENERATOR COMMANDS
+# =============================================================================
+
+# Default - 100 UEBA alerts + 500 threat hunting findings (24 hours)
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py
+
+# Medium Dataset - 500 UEBA alerts + 2000 threat hunting findings
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 500 --hunting 2000
+
+# Large Dataset - 1000 UEBA alerts + 5000 threat hunting findings
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 1000 --hunting 5000
+
+# Historical Threat Intelligence - Different Time Periods
+# ========================================================
+
+# Last 6 hours
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 200 --hunting 1000 --hours 6
+
+# Last 7 days (168 hours)
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 500 --hunting 2500 --hours 168
+
+# Last 30 days (720 hours)
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 1000 --hunting 5000 --hours 720
+
+# Last 60 days (1,440 hours)
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 1500 --hunting 7500 --hours 1440
+
+# Last 90 days (2,160 hours)
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 2000 --hunting 10000 --hours 2160
+
+# Last 120 days (2,880 hours)
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 2500 --hunting 12000 --hours 2880
+
+# Last 6 months (4,320 hours)
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 3000 --hunting 15000 --hours 4320
+
+# Last 1 year (8,760 hours)
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 5000 --hunting 25000 --hours 8760
+
+# =============================================================================
+# COMBINED DATASET GENERATION (Events + Threat Intel)
+# =============================================================================
+
+# Quick Test Dataset (Recent data only - 24 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 500 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 100 --hunting 500
+
+# Demo Dataset (Recommended for demos - 24 hours)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 5000 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 500 --hunting 2000
+
+# 7 Days Historical Data
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 2000 --hours 168 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 500 --hunting 2500 --hours 168
+
+# 30 Days Historical Data (1 Month)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 5000 --hours 720 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 1000 --hunting 5000 --hours 720
+
+# 60 Days Historical Data (2 Months)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 8000 --hours 1440 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 1500 --hunting 7500 --hours 1440
+
+# 90 Days Historical Data (3 Months)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 10000 --hours 2160 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 2000 --hunting 10000 --hours 2160
+
+# 120 Days Historical Data (4 Months)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 12000 --hours 2880 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 2500 --hunting 12000 --hours 2880
+
+# 6 Months Historical Data (Complete Half-Year Dataset)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 15000 --hours 4320 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 3000 --hunting 15000 --hours 4320
+
+# 1 Year Historical Data (LARGE - Full Annual Dataset)
+docker exec -it soc-data-generator python3 /app/bulk_event_generator.py --count 20000 --hours 8760 && \
+docker exec -it soc-data-generator python3 /app/bulk_generate_threat_intel.py --ueba 5000 --hunting 25000 --hours 8760
+
+# =============================================================================
+# MAINTENANCE COMMANDS
+# =============================================================================
+
+# Check current data counts
+curl -X GET "localhost:9200/_cat/indices?v" | grep -E "security-events|threat-alerts|ueba-alerts|threat-hunting"
+
+# Get total event counts
+curl -X GET "localhost:9200/security-events/_count?pretty"
+curl -X GET "localhost:9200/threat-alerts/_count?pretty"
+curl -X GET "localhost:9200/ueba-alerts/_count?pretty"
+curl -X GET "localhost:9200/threat-hunting-findings/_count?pretty"
+
+# Delete all data and start fresh (CAUTION!)
+curl -X DELETE "localhost:9200/security-events"
+curl -X DELETE "localhost:9200/threat-alerts"
+curl -X DELETE "localhost:9200/ueba-alerts"
+curl -X DELETE "localhost:9200/threat-hunting-findings"
+
+# =============================================================================
+# QUICK REFERENCE - Hours Calculation
+# =============================================================================
+# 1 day = 24 hours
+# 7 days = 168 hours
+# 30 days = 720 hours
+# 60 days = 1,440 hours
+# 90 days = 2,160 hours
+# 120 days = 2,880 hours
+# 6 months (180 days) = 4,320 hours
+# 1 year (365 days) = 8,760 hours
