@@ -79,6 +79,12 @@ services:
     networks:
       - soc-network
     command: "--no-config-secret"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://cassandra:9042 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s  # Give it a minute for Cassandra to start
 
   # Cortex (Analysis Engine for TheHive)
   cortex:
