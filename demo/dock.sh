@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the username
-USER_NAME="dockeruser"
+USER_NAME="ubuntu"
 
 # Update package index
 echo "Updating package index..."
