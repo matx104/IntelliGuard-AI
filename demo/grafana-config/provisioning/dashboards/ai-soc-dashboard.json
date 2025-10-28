@@ -60,7 +60,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -118,7 +118,7 @@
               "type": "count"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -175,7 +175,7 @@
               "type": "count"
             }
           ],
-          "query": "threat-alerts AND severity:HIGH",
+          "query": "_index:threat-alerts AND severity:HIGH",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -235,7 +235,7 @@
               "type": "avg"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -291,7 +291,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -348,7 +348,7 @@
               "type": "avg"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -409,7 +409,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -471,7 +471,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -524,7 +524,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -580,7 +580,7 @@
               "type": "count"
             }
           ],
-          "query": "ueba-alerts",
+          "query": "_index:ueba-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -636,7 +636,7 @@
               "type": "count"
             }
           ],
-          "query": "threat-hunting-findings",
+          "query": "_index:threat-hunting-findings",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -693,7 +693,7 @@
               "type": "sum"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -749,7 +749,7 @@
               "type": "count"
             }
           ],
-          "query": "security-events AND _exists_:malware_family",
+          "query": "_index:security-events AND _exists_:malware_family",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -807,7 +807,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "security-events",
+          "query": "_index:security-events",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -865,7 +865,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "threat-alerts",
+          "query": "_index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -923,7 +923,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "security-events AND event_type:authentication",
+          "query": "_index:security-events AND event_type:authentication",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -981,7 +981,7 @@
               "type": "raw_document"
             }
           ],
-          "query": "security-events AND risk_score:>50",
+          "query": "_index:security-events AND risk_score:>50",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -1001,7 +1001,7 @@
           }
         }
       },
-      "gridPos": {"h": 10, "w": 12, "x": 0, "y": 44},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 44},
       "id": 18,
       "options": {
         "showHeader": true,
@@ -1039,135 +1039,19 @@
               "type": "raw_document"
             }
           ],
-          "query": "security-events AND (status:failed OR failed_logins:>0)",
+          "query": "_index:security-events OR _index:threat-alerts",
           "refId": "A",
           "timeField": "@timestamp"
         }
       ],
-      "title": "Failed Login Attempts - Raw Logs",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "elasticsearch",
-        "uid": "P31C819B24CF3C3C7"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto"
-          }
-        }
-      },
-      "gridPos": {"h": 10, "w": 12, "x": 12, "y": 44},
-      "id": 19,
-      "options": {
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "@timestamp"
-          }
-        ]
-      },
-      "targets": [
-        {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
-          "datasource": {
-            "type": "elasticsearch",
-            "uid": "P31C819B24CF3C3C7"
-          },
-          "metrics": [
-            {
-              "id": "1",
-              "settings": {
-                "size": "100"
-              },
-              "type": "raw_document"
-            }
-          ],
-          "query": "ueba-alerts",
-          "refId": "A",
-          "timeField": "@timestamp"
-        }
-      ],
-      "title": "UEBA Alerts - Raw Logs",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "elasticsearch",
-        "uid": "P31C819B24CF3C3C7"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto"
-          }
-        }
-      },
-      "gridPos": {"h": 12, "w": 24, "x": 0, "y": 54},
-      "id": 20,
-      "options": {
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "@timestamp"
-          }
-        ]
-      },
-      "targets": [
-        {
-          "alias": "",
-          "bucketAggs": [
-            {
-              "field": "@timestamp",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": "0"
-              },
-              "type": "date_histogram"
-            }
-          ],
-          "datasource": {
-            "type": "elasticsearch",
-            "uid": "P31C819B24CF3C3C7"
-          },
-          "metrics": [
-            {
-              "id": "1",
-              "settings": {
-                "size": "200"
-              },
-              "type": "raw_document"
-            }
-          ],
-          "query": "*",
-          "refId": "A",
-          "timeField": "@timestamp"
-        }
-      ],
-      "title": "All Events - Raw Log Stream",
+      "title": "All Events - Combined View",
       "type": "table"
     }
   ],
-  "refresh": "10s",
+  "refresh": "5s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["security", "ai-soc", "logs"],
+  "tags": ["security", "ai-soc", "threat-detection"],
   "templating": {
     "list": []
   },
@@ -1176,9 +1060,9 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
-  "title": "AI-Driven SOC - Security Overview with Logs",
-  "uid": "ai-soc-main-with-logs-v3",
-  "version": 0,
+  "timezone": "browser",
+  "title": "AI-SOC Security Dashboard",
+  "uid": "ai-soc-dashboard",
+  "version": 1,
   "weekStart": ""
 }
