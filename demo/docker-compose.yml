@@ -234,6 +234,36 @@ services:
       - soc-network
     command: python /app/generate_events.py
 
+  # Portainer for Container Management
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: soc-portainer
+    restart: always
+    ports:
+      - "9443:9443"
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      - soc-network
+
+  # Dockge for Docker Compose Stack Management
+  dockge:
+    image: louislam/dockge:1
+    container_name: soc-dockge
+    restart: always
+    ports:
+      - "5001:5001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dockge-data:/app/data
+      - ./stacks:/opt/stacks
+    environment:
+      - DOCKGE_STACKS_DIR=/opt/stacks
+    networks:
+      - soc-network
+
 volumes:
   es-data:
   wazuh-data:
@@ -246,6 +276,8 @@ volumes:
   misp-data:
   grafana-data:
   ml-models:
+  portainer-data:
+  dockge-data:
 
 networks:
   soc-network:
