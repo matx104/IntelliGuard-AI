@@ -1,0 +1,67 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # System logs
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: varlogs
+          host: soc-host
+          __path__: /var/log/*.log
+
+  # Docker container logs
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          host: soc-host
+          __path__: /var/lib/docker/containers/*/*.log
+    pipeline_stages:
+      # Extract container info from path
+      - regex:
+          expression: '^/var/lib/docker/containers/(?P<container_id>[a-z0-9]{64})/.*\.log$'
+      # Parse JSON log format
+      - json:
+          expressions:
+            stream: stream
+            attrs: attrs
+            tag: attrs.tag
+      # Extract container name
+      - labels:
+          container_id:
+          stream:
+      # Timestamp extraction
+      - timestamp:
+          source: time
+          format: RFC3339Nano
+
+  # Elasticsearch logs (if available)
+  - job_name: elasticsearch
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: elasticsearch
+          component: elasticsearch
+          __path__: /var/log/elasticsearch/*.log
+
+  # Custom application logs (add as needed)
+  # - job_name: custom_app
+  #   static_configs:
+  #     - targets:
+  #         - localhost
+  #       labels:
+  #         job: my_app
+  #         __path__: /app/logs/*.log

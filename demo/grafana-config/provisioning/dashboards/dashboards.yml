@@ -1,12 +1,13 @@
 apiVersion: 1
 
 providers:
-  - name: 'AI-SOC Dashboards'
+  - name: 'SOC Dashboards'
     orgId: 1
-    folder: ''
+    folder: 'SOC Platform'
     type: file
     disableDeletion: false
     updateIntervalSeconds: 10
     allowUiUpdates: true
     options:
       path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: true
