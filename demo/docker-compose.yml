@@ -84,7 +84,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s  # Give it a minute for Cassandra to start
+      start_period: 60s
 
   # Cortex (Analysis Engine for TheHive)
   cortex:
@@ -139,6 +139,86 @@ services:
     networks:
       - soc-network
 
+  # Prometheus for Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: soc-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus-config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    networks:
+      - soc-network
+    restart: always
+
+  # Node Exporter for System Metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: soc-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - soc-network
+    restart: always
+
+  # cAdvisor for Container Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: soc-cadvisor
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    networks:
+      - soc-network
+    restart: always
+
+  # Loki for Log Aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: soc-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config/loki-config.yml:/etc/loki/loki-config.yml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/loki-config.yml
+    networks:
+      - soc-network
+    restart: always
+
+  # Promtail for Log Shipping to Loki
+  promtail:
+    image: grafana/promtail:latest
+    container_name: soc-promtail
+    volumes:
+      - ./promtail-config/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/promtail-config.yml
+    networks:
+      - soc-network
+    restart: always
+
   # Grafana for Dashboards
   grafana:
     image: grafana/grafana:latest
@@ -148,6 +228,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=redis-datasource,grafana-clock-panel,grafana-simple-json-datasource
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana-config/provisioning:/etc/grafana/provisioning
@@ -155,6 +236,9 @@ services:
       - soc-network
     depends_on:
       - elasticsearch
+      - prometheus
+      - loki
+    restart: always
 
   # ML Threat Detection Service
   ml-threat-detector:
@@ -278,6 +362,8 @@ volumes:
   ml-models:
   portainer-data:
   dockge-data:
+  prometheus-data:
+  loki-data:
 
 networks:
   soc-network:
